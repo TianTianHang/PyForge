@@ -1,0 +1,25 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+context: |
+  Tech stack: Tauri 2.0 (Rust + React/TypeScript), Python (uv, Jupyter)
+  Frontend: React 19, TypeScript 5.8, Vite 7, pnpm
+  Backend: Rust with Tauri 2.0
+  Domain: Desktop Python development environment with bundled Jupyter
+  Project goal: Zero-configuration Python learning environment
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+rules:
+  proposal:
+    - Keep proposals small and focused; split large changes into multiple proposals
+    - Each proposal should address a single concern or feature
+    - If a change touches more than 5 files or requires extensive refactoring, split it
+    - Include clear scope boundaries and explicit "out of scope" items
+  tasks:
+    - Maximum 24 tasks per task list
+    - If more tasks are needed, split into multiple phases or proposals
+    - Each task should be completable in 1-2 hours
+    - Group related tasks into logical phases when possible
