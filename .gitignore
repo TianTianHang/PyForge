@@ -26,3 +26,8 @@ dist-ssr
 # Claude Code / OpenCode
 .claude/
 .opencode/
+
+# Nix
+result
+result-*
+.envrc
