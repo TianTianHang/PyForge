@@ -12,13 +12,23 @@
   "app": {
     "windows": [
       {
-        "title": "pyforge",
-        "width": 800,
-        "height": 600
+        "title": "PyForge",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600
       }
     ],
     "security": {
-      "csp": null
+      "csp": {
+        "default-src": "'self' http://127.0.0.1:*",
+        "connect-src": "'self' http://127.0.0.1:* ws://127.0.0.1:* http://localhost:1420",
+        "frame-src": "'self' http://127.0.0.1:*",
+        "script-src": "'self' 'unsafe-inline' 'unsafe-eval' http://127.0.0.1:*",
+        "style-src": "'self' 'unsafe-inline' http://127.0.0.1:*",
+        "img-src": "'self' http://127.0.0.1:* data: blob:",
+        "font-src": "'self' http://127.0.0.1:* data:"
+      }
     }
   },
   "bundle": {
