@@ -1,0 +1,57 @@
+use crate::models::{AppState, EnvStatus, JupyterInfo};
+use std::sync::Mutex;
+
+pub struct AppStateWrapper(pub Mutex<AppState>);
+
+impl AppStateWrapper {
+    pub fn update_env_status(&self, exists: bool, path: String) {
+        let mut state_lock = self.0.lock().unwrap();
+        state_lock.env_status = EnvStatus { exists, path };
+    }
+
+    pub fn set_jupyter_info(&self, info: JupyterInfo, pid: Option<u32>) {
+        let mut state_lock = self.0.lock().unwrap();
+        state_lock.jupyter_info = Some(info);
+        state_lock.jupyter_pid = pid;
+    }
+
+    pub fn clear_jupyter(&self) -> Option<u32> {
+        let mut state_lock = self.0.lock().unwrap();
+        let pid = state_lock.jupyter_pid;
+        state_lock.jupyter_info = None;
+        state_lock.jupyter_pid = None;
+        pid
+    }
+
+    pub fn get_jupyter_info(&self) -> Option<JupyterInfo> {
+        let state_lock = self.0.lock().unwrap();
+        state_lock.jupyter_info.clone()
+    }
+
+    pub fn get_env_status(&self) -> EnvStatus {
+        let state_lock = self.0.lock().unwrap();
+        state_lock.env_status.clone()
+    }
+
+    pub fn get_app_state(&self) -> AppState {
+        let state_lock = self.0.lock().unwrap();
+        AppState {
+            env_status: state_lock.env_status.clone(),
+            jupyter_info: state_lock.jupyter_info.clone(),
+            jupyter_pid: state_lock.jupyter_pid,
+        }
+    }
+}
+
+impl Default for AppStateWrapper {
+    fn default() -> Self {
+        Self(Mutex::new(AppState {
+            env_status: EnvStatus {
+                exists: false,
+                path: String::new(),
+            },
+            jupyter_info: None,
+            jupyter_pid: None,
+        }))
+    }
+}

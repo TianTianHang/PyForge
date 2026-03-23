@@ -65,7 +65,7 @@
           # Environment variables
           env = {
             # Ensure pnpm uses the nix-provided node
-            PNPM_HOME = "\${pkgs.pnpm}/bin";
+            PNPM_HOME = "${pkgs.pnpm}/bin";
 
             # Rust configuration
             RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
