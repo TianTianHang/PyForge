@@ -9,6 +9,12 @@ impl AppStateWrapper {
         state_lock.env_status = EnvStatus { exists, path };
     }
 
+    pub fn set_environments(&self, environments: Vec<crate::models::Environment>, current_env_id: Option<String>) {
+        let mut state_lock = self.0.lock().unwrap();
+        state_lock.environments = environments;
+        state_lock.current_env_id = current_env_id;
+    }
+
     pub fn set_jupyter_info(&self, info: JupyterInfo, pid: Option<u32>) {
         let mut state_lock = self.0.lock().unwrap();
         state_lock.jupyter_info = Some(info);
@@ -37,6 +43,8 @@ impl AppStateWrapper {
         let state_lock = self.0.lock().unwrap();
         AppState {
             env_status: state_lock.env_status.clone(),
+            environments: state_lock.environments.clone(),
+            current_env_id: state_lock.current_env_id.clone(),
             jupyter_info: state_lock.jupyter_info.clone(),
             jupyter_pid: state_lock.jupyter_pid,
         }
@@ -50,6 +58,8 @@ impl Default for AppStateWrapper {
                 exists: false,
                 path: String::new(),
             },
+            environments: Vec::new(),
+            current_env_id: None,
             jupyter_info: None,
             jupyter_pid: None,
         }))

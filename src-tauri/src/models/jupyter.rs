@@ -13,4 +13,5 @@ pub struct JupyterServerConfig {
     pub port: u16,
     pub token: String,
     pub notebook_dir: String,
+    pub executable_path: String,
 }

@@ -15,12 +15,14 @@ export function useJupyter({
   setProgressMessage,
   setError,
 }: UseJupyterProps) {
-  const startJupyter = useCallback(async () => {
+  const startJupyter = useCallback(async (envId?: string | null) => {
     try {
       setAppState("starting_jupyter");
       setProgressMessage("正在启动 Jupyter Server...");
 
-      const info = await invoke<JupyterInfo>("start_jupyter");
+      const info = await invoke<JupyterInfo>("start_jupyter", {
+        envId: envId ?? null,
+      });
       setJupyterInfo(info);
       setAppState("ready");
     } catch (err) {
@@ -33,7 +35,7 @@ export function useJupyter({
     try {
       await invoke<string>("stop_jupyter");
       setJupyterInfo(null);
-      setAppState("no_env");
+      setAppState("select_env");
     } catch (err) {
       console.error("停止 Jupyter 失败:", err);
     }

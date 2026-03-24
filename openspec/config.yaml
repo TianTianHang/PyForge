@@ -9,7 +9,7 @@ context: |
   Backend: Rust with Tauri 2.0
   Domain: Desktop Python development environment with bundled Jupyter
   Project goal: Zero-configuration Python learning environment
-
+  Environment Management: The entire development environment must be activated using `nix develop` to ensure dependency consistency and zero-configuration setup.
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
 rules:

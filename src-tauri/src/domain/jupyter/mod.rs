@@ -4,7 +4,7 @@ pub mod terminator;
 pub use launcher::start_jupyter_server;
 pub use terminator::stop_jupyter_server;
 
-use crate::infrastructure::{find_available_port, get_project_dir};
+use crate::infrastructure::{find_available_port, get_jupyter_path, get_project_dir};
 use crate::models::{JupyterInfo, JupyterServerConfig};
 
 pub struct JupyterServer {
@@ -20,7 +20,7 @@ impl JupyterServer {
         }
     }
 
-    pub async fn start(&mut self) -> Result<JupyterInfo, String> {
+    pub async fn start(&mut self, env_id: &str) -> Result<JupyterInfo, String> {
         let port = find_available_port()?;
         let notebook_dir = get_project_dir().to_string_lossy().to_string();
 
@@ -28,10 +28,11 @@ impl JupyterServer {
             port,
             token: String::new(),
             notebook_dir: notebook_dir.clone(),
+            executable_path: get_jupyter_path(env_id).to_string_lossy().to_string(),
         };
 
         let info = start_jupyter_server(config).await?;
-        self.pid = None; // Will be set by caller
+        self.pid = None;
         self.info = Some(info.clone());
         Ok(info)
     }

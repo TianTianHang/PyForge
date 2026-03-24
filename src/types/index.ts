@@ -1,7 +1,23 @@
+export interface Environment {
+  id: string;
+  name: string;
+  python_version: string;
+  path: string;
+  kernel_name: string;
+  created_at: string;
+  is_default: boolean;
+}
+
+export interface InstalledPackage {
+  name: string;
+  version: string;
+}
+
 export type AppState =
   | "checking"
   | "no_env"
   | "creating_env"
+  | "select_env"
   | "starting_jupyter"
   | "ready"
   | "error";

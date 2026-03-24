@@ -1,4 +1,4 @@
-use crate::infrastructure::{get_project_dir, get_jupyter_path, ensure_dir, JUPYTER_READY_TIMEOUT_SECS};
+use crate::infrastructure::{get_project_dir, ensure_dir, JUPYTER_READY_TIMEOUT_SECS};
 use crate::models::{JupyterInfo, JupyterServerConfig};
 use tokio::process::Command;
 use tokio::time::{sleep, Duration};
@@ -6,10 +6,9 @@ use tokio::time::{sleep, Duration};
 pub async fn start_jupyter_server(config: JupyterServerConfig) -> Result<JupyterInfo, String> {
     ensure_dir(&get_project_dir())?;
 
-    let jupyter = get_jupyter_path();
     let notebook_dir = config.notebook_dir.clone();
 
-    let child = Command::new(&jupyter)
+    let child = Command::new(&config.executable_path)
         .args([
             "lab", "--no-browser",
             "--port", &config.port.to_string(),
