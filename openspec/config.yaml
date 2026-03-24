@@ -19,7 +19,7 @@ rules:
     - If a change touches more than 5 files or requires extensive refactoring, split it
     - Include clear scope boundaries and explicit "out of scope" items
   tasks:
-    - Maximum 24 tasks per task list
-    - If more tasks are needed, split into multiple phases or proposals
+    - Maximum 30 tasks per task list
+    - 'If the total number of planned tasks exceeds 24, you must pause and ask the user: "The number of tasks has exceeded the limit of 24. Would you like to split this into multiple phases or separate change proposals?" Proceed with splitting only after receiving user confirmation.'
     - Each task should be completable in 1-2 hours
     - Group related tasks into logical phases when possible
