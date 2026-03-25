@@ -8,27 +8,33 @@ PyForge 采用分阶段开发策略，优先实现核心功能，逐步扩展高
 
 | 阶段 | 状态 | 版本 | 说明 |
 |------|------|------|------|
-| MVP | ✅ 已完成 | v0.1.0-alpha | 单环境、单项目的 Jupyter 环境 |
-| 多环境管理 |   进行中 | v0.2.0 | 多环境支持、包管理、项目绑定 |
-| 用户体验优化 | ⏳ 计划中 | v0.3.0 | 防炸盾、时光机、模板库 |
+| 基础环境 | ✅ 已完成 | v0.2.0 | Base 环境 + 多环境管理 |
+| 多环境管理 | ✅ 已完成 | v0.2.0 | 多环境支持、包管理、项目绑定 |
+| 项目管理 | ⏳ 计划中 | v0.3.0 | 多项目、导入导出 |
+| 用户体验优化 | ⏳ 计划中 | v0.4.0 | 防炸盾、时光机、模板库 |
 | 高级特性 | ⏳ 计划中 | v1.0.0 | GPU、智能补全、云端同步 |
 
 ## 阶段划分
 
-### 第一阶段：MVP（最小可用产品） - 已完成
+### 第一阶段：基础环境 - 已完成
 
-**目标**：开箱即用的 Python 学习环境，用户零配置
+**目标**：建立 PyForge 的核心运行环境
 
-#### 1.1 默认环境构建 - 已完成
+#### 1.1 Base 环境构建 - 已完成
 
-- [x] **内置默认环境**
-  - Python 3.10 (uv 创建的虚拟环境)
-  - 预装：numpy, pandas, matplotlib
-  - 预装：ipykernel（用于 Jupyter 内核注册）
+- [x] **Base 环境**
+  - 位于 ~/.pyforge/base/
+  - 仅安装 JupyterLab，所有项目共享
+
+- [x] **默认环境构建**
+  - Python 3.12 (uv 创建的虚拟环境)
+  - 预装：numpy, pandas, matplotlib, ipykernel
+  - 不包含 JupyterLab（由 base 环境提供）
 
 - [x] **首次启动流程**
-  - 检测默认环境是否存在
-  - 自动创建环境（带进度条）
+  - 应用初始化 (initialize_app)
+  - 自动创建 base 环境（如不存在）
+  - 自动创建 default 环境（如不存在）
   - 注册为 Jupyter kernel
 
 #### 1.2 Jupyter 集成 - 已完成
@@ -36,8 +42,8 @@ PyForge 采用分阶段开发策略，优先实现核心功能，逐步扩展高
 - [x] **Jupyter Server 管理**
   - 启动/停止服务
   - 自动寻找可用端口
-  - Token 生成与验证
-  - 指定 --notebook-dir=~/.pyforge/project/
+  - 统一使用 base 环境的 python -m jupyter lab
+  - 配置 kernel_dirs
 
 - [x] **WebView 嵌入**
   - JupyterLab 前端嵌入 Tauri WebView
@@ -88,9 +94,11 @@ PyForge 采用分阶段开发策略，优先实现核心功能，逐步扩展高
   - kernel_name, created_at, is_default
   - 序列化/反序列化
 
-- [ ] **目录结构迁移**
+- [x] **目录结构迁移**
   - `~/.pyforge/env/` → `~/.pyforge/envs/default/`
   - `~/.pyforge/project/` → `~/.pyforge/projects/`
+  - `~/.pyforge/base/` - 新增 base 环境
+  - `~/.pyforge/kernels/` - 新增全局内核存储
   - 自动迁移逻辑
 
 - [ ] **环境元数据**
