@@ -70,24 +70,35 @@ export function useEnvironment({
     projectId?: string | null
   ) => {
     try {
-      setProgressMessage("正在创建环境...");
+      // Step 1: Create environment
+      setProgressMessage(`正在创建环境 "${name}"...`);
       const env = await invoke<Environment>("create_environment", {
         name,
         pythonVersion,
         packages,
       });
+      setProgressMessage(`环境 "${name}" 创建成功！`);
 
-      // If projectId is provided and auto-binding is supported, bind the kernel
+      // Step 2: Bind to project if projectId is provided
       if (projectId) {
+        setProgressMessage(`正在绑定环境到项目...`);
         await invoke("bind_kernel_command", {
           projectId,
           envId: env.id,
         });
+        setProgressMessage(`环境 "${name}" 已成功绑定到项目！`);
       }
 
+      // Refresh environment list
       await listEnvironments();
+
+      // Clear progress message after a short delay
+      setTimeout(() => setProgressMessage(""), 2000);
     } catch (err) {
-      setError(err as string);
+      const errorMessage = err as string;
+      setError(errorMessage);
+      setProgressMessage("");
+      throw errorMessage; // Re-throw to let caller handle
     }
   }, [listEnvironments, setError, setProgressMessage]);
 

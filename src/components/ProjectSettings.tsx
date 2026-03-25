@@ -33,6 +33,11 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
   const [newEnvPackages, setNewEnvPackages] = useState('');
   const [tab, setTab] = useState<'kernels' | 'environments' | 'delete'>('kernels');
 
+  // Environment creation state
+  const [isCreatingEnv, setIsCreatingEnv] = useState(false);
+  const [createEnvError, setCreateEnvError] = useState<string | null>(null);
+  const [createEnvSuccess, setCreateEnvSuccess] = useState<string | null>(null);
+
   useEffect(() => {
     loadKernels();
   }, [project.id]);
@@ -71,19 +76,46 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
     }
   };
 
-  const handleCreateNewEnv = (e: React.FormEvent) => {
+  const handleCreateNewEnv = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (onCreateEnvironment) {
+
+    if (!onCreateEnvironment) {
+      setCreateEnvError("创建环境功能不可用");
+      return;
+    }
+
+    // Clear previous state
+    setCreateEnvError(null);
+    setCreateEnvSuccess(null);
+    setIsCreatingEnv(true);
+
+    try {
       const packages = newEnvPackages
         .split(',')
         .map(p => p.trim())
         .filter(p => p.length > 0);
 
-      onCreateEnvironment(newEnvName, selectedNewEnvPython, packages, project.id);
+      await onCreateEnvironment(newEnvName, selectedNewEnvPython, packages, project.id);
+
+      // Success!
+      setCreateEnvSuccess(`环境 "${newEnvName}" 创建并绑定成功！`);
+
+      // Clear form
+      setNewEnvName('');
+      setSelectedNewEnvPython('3.12');
+      setNewEnvPackages('');
+
+      // Refresh kernel list after a short delay
+      setTimeout(async () => {
+        await loadKernels();
+        setCreateEnvSuccess(null);
+      }, 2000);
+
+    } catch (err) {
+      setCreateEnvError(`创建失败: ${err}`);
+    } finally {
+      setIsCreatingEnv(false);
     }
-    setNewEnvName('');
-    setSelectedNewEnvPython('3.12');
-    setNewEnvPackages('');
   };
 
   const handleDeleteProject = () => {
@@ -150,6 +182,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
             onChange={(e) => setNewEnvName(e.target.value)}
             placeholder="输入环境名称..."
             required
+            disabled={isCreatingEnv}
           />
         </div>
         <div className="form-group">
@@ -157,6 +190,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
           <select
             value={selectedNewEnvPython}
             onChange={(e) => setSelectedNewEnvPython(e.target.value)}
+            disabled={isCreatingEnv}
           >
             <option value="3.12">3.12</option>
             <option value="3.11">3.11</option>
@@ -170,10 +204,28 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
             value={newEnvPackages}
             onChange={(e) => setNewEnvPackages(e.target.value)}
             placeholder="用逗号分隔包名，如：numpy, pandas, matplotlib"
+            disabled={isCreatingEnv}
           />
         </div>
-        <button type="submit" className="create-env-button">
-          创建环境并自动绑定
+
+        {/* Status messages */}
+        {createEnvError && (
+          <div className="error-message" style={{ marginTop: '10px', padding: '10px', backgroundColor: '#fee', border: '1px solid #f88', borderRadius: '4px' }}>
+            {createEnvError}
+          </div>
+        )}
+        {createEnvSuccess && (
+          <div className="success-message" style={{ marginTop: '10px', padding: '10px', backgroundColor: '#efe', border: '1px solid #8f8', borderRadius: '4px' }}>
+            {createEnvSuccess}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          className="create-env-button"
+          disabled={isCreatingEnv || !newEnvName.trim()}
+        >
+          {isCreatingEnv ? '创建中...' : '创建环境并自动绑定'}
         </button>
       </form>
     </div>
