@@ -1,4 +1,5 @@
 use crate::infrastructure::{get_env_dir, load_envs_metadata, save_envs_metadata};
+use crate::domain::environment::remove_kernel_link;
 
 pub async fn delete_environment(env_id: &str) -> Result<(), String> {
     if env_id == "default" {
@@ -14,6 +15,10 @@ pub async fn delete_environment(env_id: &str) -> Result<(), String> {
 
     if let Err(e) = super::unregister_kernel(&environment.id).await {
         eprintln!("警告: 注销内核失败 ({}), 继续删除环境", e);
+    }
+
+    if let Err(e) = remove_kernel_link(&environment.id) {
+        eprintln!("警告: 删除内核链接失败 ({}), 继续删除环境", e);
     }
 
     let env_dir = get_env_dir(env_id);

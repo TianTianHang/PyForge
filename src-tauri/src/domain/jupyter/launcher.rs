@@ -8,19 +8,28 @@ pub async fn start_jupyter_server(config: JupyterServerConfig) -> Result<Jupyter
 
     let notebook_dir = config.notebook_dir.clone();
 
+    let mut args: Vec<String> = vec![
+        "-m".to_string(), "jupyter".to_string(), "lab".to_string(),
+        "--no-browser".to_string(),
+        "--port".to_string(), config.port.to_string(),
+        "--notebook-dir".to_string(), notebook_dir.clone(),
+        "--ip".to_string(), "127.0.0.1".to_string(),
+        "--LabApp.allow_origin=http://localhost:1420".to_string(),
+        "--ServerApp.allow_remote_access=True".to_string(),
+        "--ServerApp.token=''".to_string(),
+        "--ServerApp.password=''".to_string(),
+        "--ServerApp.disable_check_xsrf=True".to_string(),
+        "--LabApp.tornado_settings={\"headers\":{\"Content-Security-Policy\":\"frame-ancestors 'self' http://localhost:1420\"}}".to_string(),
+    ];
+
+    if !config.kernel_dirs.is_empty() {
+        let kernel_dirs_str = config.kernel_dirs.join(":");
+        args.push("--KernelSpecManager.kernel_dirs".to_string());
+        args.push(kernel_dirs_str);
+    }
+
     let child = Command::new(&config.executable_path)
-        .args([
-            "lab", "--no-browser",
-            "--port", &config.port.to_string(),
-            "--notebook-dir", &notebook_dir,
-            "--ip", "127.0.0.1",
-            "--LabApp.allow_origin=http://localhost:1420",
-            "--ServerApp.allow_remote_access=True",
-            "--ServerApp.token=''",
-            "--ServerApp.password=''",
-            "--ServerApp.disable_check_xsrf=True",
-            "--LabApp.tornado_settings={\"headers\":{\"Content-Security-Policy\":\"frame-ancestors 'self' http://localhost:1420\"}}",
-        ])
+        .args(&args)
         .spawn()
         .map_err(|e| format!("启动 Jupyter 失败: {}", e))?;
 

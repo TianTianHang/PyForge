@@ -8,11 +8,13 @@
 
 | 功能 | 状态 | 说明 |
 |------|------|------|
-| 单项目目录 | ✅ 已实现 | `~/.pyforge/project/` |
-| Jupyter 启动 | ✅ 已实现 | 自动端口、Token 生成 |
+| Base 环境 | ✅ 已实现 | `~/.pyforge/base/`，JupyterLab 运行环境 |
+| 全局内核存储 | ✅ 已实现 | `~/.pyforge/kernels/`，集中管理 kernelspec |
+| 多环境支持 | ✅ 已实现 | `~/.pyforge/envs/` |
+| 项目内核链接 | ✅ 已实现 | 项目 kernels/ 目录链接到全局内核 |
+| Jupyter 启动 | ✅ 已实现 | 使用 base 环境 JupyterLab |
 | 项目导入导出 | ⏳ 待实现 | Phase 2 功能 |
 | 多项目支持 | ⏳ 待实现 | Phase 2 功能 |
-| 项目-环境绑定 | ⏳ 待实现 | Phase 2 功能 |
 
 ## 设计目标
 

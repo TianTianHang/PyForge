@@ -14,4 +14,5 @@ pub struct JupyterServerConfig {
     pub token: String,
     pub notebook_dir: String,
     pub executable_path: String,
+    pub kernel_dirs: Vec<String>,
 }

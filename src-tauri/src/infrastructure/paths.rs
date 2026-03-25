@@ -47,3 +47,24 @@ pub fn get_jupyter_path(env_id: &str) -> PathBuf {
         env_dir.join("bin").join("jupyter")
     }
 }
+
+pub fn get_base_env_dir() -> PathBuf {
+    get_pyforge_root().join("base")
+}
+
+pub fn get_kernel_store_dir() -> PathBuf {
+    get_pyforge_root().join("kernels")
+}
+
+pub fn get_base_python_path() -> PathBuf {
+    let base_dir = get_base_env_dir();
+    if cfg!(target_os = "windows") {
+        base_dir.join("Scripts").join("python.exe")
+    } else {
+        base_dir.join("bin").join("python")
+    }
+}
+
+pub fn get_project_kernel_dir(project_id: &str) -> PathBuf {
+    get_project_dir().join(project_id).join("kernels")
+}

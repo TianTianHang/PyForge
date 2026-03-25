@@ -2,7 +2,7 @@ use tauri::Emitter;
 use tokio::process::Command;
 use crate::infrastructure::{get_env_dir, get_pyforge_root, ensure_dir, get_python_path, PYPI_MIRROR_URL};
 use crate::models::Environment;
-use crate::domain::environment::register_jupyter_kernel;
+use crate::domain::environment::{register_jupyter_kernel, create_kernel_link};
 
 #[derive(Debug, Clone, serde::Serialize)]
 pub enum CreateProgress {
@@ -17,7 +17,7 @@ pub async fn create_default_environment(app: tauri::AppHandle) -> Result<(), Str
         app,
         "Default".to_string(),
         "3.12".to_string(),
-        vec!["numpy".to_string(), "pandas".to_string(), "matplotlib".to_string(), "ipykernel".to_string(), "jupyterlab".to_string()],
+        vec!["numpy".to_string(), "pandas".to_string(), "matplotlib".to_string(), "ipykernel".to_string()],
     ).await?;
     Ok(())
 }
@@ -73,6 +73,10 @@ pub async fn create_environment(
     let _ = app.emit("env-progress", format!("正在注册 Jupyter 内核 ({})...", name));
 
     register_jupyter_kernel(&python, &env_id, &name, &python_version).await?;
+
+    if let Err(e) = create_kernel_link(&env_id) {
+        eprintln!("警告: 创建内核链接失败 ({}), 继续创建环境", e);
+    }
 
     let environment = Environment {
         id: env_id.clone(),
