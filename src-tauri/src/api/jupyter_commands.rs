@@ -1,6 +1,5 @@
-use crate::domain::environment::list_environments;
 use crate::domain::jupyter::{get_base_python, start_jupyter_server, stop_jupyter_server};
-use crate::infrastructure::{find_available_port, get_project_dir, get_kernel_store_dir};
+use crate::infrastructure::{find_available_port, get_project_dir_by_id};
 use crate::models::{JupyterInfo, JupyterServerConfig};
 use crate::state::AppStateWrapper;
 use tauri::State;
@@ -9,7 +8,7 @@ use tauri::State;
 #[tauri::command]
 pub async fn start_jupyter(
     state: State<'_, AppStateWrapper>,
-    env_id: Option<String>,
+    project_id: String,
 ) -> Result<JupyterInfo, String> {
     {
         if let Some(ref info) = state.get_jupyter_info() {
@@ -19,38 +18,19 @@ pub async fn start_jupyter(
 
     let python_path = get_base_python()?;
 
-    let environments = list_environments()?;
-    let _selected_env = if let Some(env_id) = env_id {
-        environments
-            .into_iter()
-            .find(|env| env.id == env_id)
-            .ok_or("指定的环境不存在".to_string())?
-    } else {
-        let default_env = environments.iter().find(|env| env.is_default);
-        if let Some(env) = default_env {
-            env.clone()
-        } else {
-            environments
-                .into_iter()
-                .next()
-                .ok_or("没有可用的环境".to_string())?
-        }
-    };
-
-    let port = find_available_port()?;
-    let notebook_dir = get_project_dir().to_string_lossy().to_string();
-
-    let project_kernel_dir = get_project_dir().join("kernels");
-    let global_kernel_dir = get_kernel_store_dir();
-
-    let mut kernel_dirs: Vec<String> = Vec::new();
-    if project_kernel_dir.exists() {
-        kernel_dirs.push(project_kernel_dir.to_string_lossy().to_string());
+    // Get project directory
+    let project_dir = get_project_dir_by_id(&project_id);
+    if !project_dir.exists() {
+        return Err(format!("项目目录不存在: {:?}", project_dir));
     }
-    kernel_dirs.push(global_kernel_dir.to_string_lossy().to_string());
+
+    let notebook_dir = project_dir.to_string_lossy().to_string();
+
+    // JUPYTER_PATH auto-appends /kernels, so pass the project dir (not kernels subdir)
+    let kernel_dirs = vec![project_dir.to_string_lossy().to_string()];
 
     let config = JupyterServerConfig {
-        port,
+        port: find_available_port()?,
         token: String::new(),
         notebook_dir: notebook_dir.clone(),
         executable_path: python_path.to_string_lossy().to_string(),

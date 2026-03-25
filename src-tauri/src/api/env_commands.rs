@@ -71,7 +71,7 @@ pub async fn create_environment(
     python_version: String,
     packages: Vec<String>,
 ) -> Result<Environment, String> {
-    create_environment_impl(app, name, python_version, packages).await
+    create_environment_impl(app, name, python_version, packages, None).await
 }
 
 /// 删除环境

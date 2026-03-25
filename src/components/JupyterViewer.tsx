@@ -1,27 +1,52 @@
-import { Environment } from "../types";
+import { Environment, Project } from "../types";
+import { useState } from "react";
+import ProjectSettings from "./ProjectSettings";
 
 export function JupyterViewer({
   url,
   onStop,
   environment,
+  project,
 }: {
   url: string;
   onStop: () => void;
   environment?: Environment | null;
+  project?: Project | null;
 }) {
+  const [showProjectSettings, setShowProjectSettings] = useState(false);
+
   return (
     <div className="jupyter-viewer">
+      {showProjectSettings && project && (
+        <ProjectSettings
+          project={project}
+          onClose={() => setShowProjectSettings(false)}
+        />
+      )}
       <div className="jupyter-toolbar">
         <span className="toolbar-title">
-          PyForge {environment && `- ${environment.name}`}
+          PyForge {project && `- ${project.name}`}
         </span>
-        <button className="toolbar-button" onClick={onStop}>
-          停止
-        </button>
+        <div className="toolbar-actions">
+          {project && (
+            <button
+              className="toolbar-button settings-button"
+              onClick={() => setShowProjectSettings(true)}
+            >
+              项目设置
+            </button>
+          )}
+          <button className="toolbar-button stop-button" onClick={onStop}>
+            停止
+          </button>
+        </div>
       </div>
-      {environment && (
+      {(environment || project) && (
         <div className="environment-info">
-          Python {environment.python_version} | 内核: {environment.kernel_name}
+          {project && <span>项目: {project.name} | </span>}
+          {environment && (
+            <span>Python {environment.python_version} | 内核: {environment.kernel_name}</span>
+          )}
         </div>
       )}
       <iframe

@@ -2,7 +2,7 @@ use tauri::Emitter;
 use tokio::process::Command;
 use crate::infrastructure::{get_env_dir, get_pyforge_root, ensure_dir, get_python_path, PYPI_MIRROR_URL};
 use crate::models::Environment;
-use crate::domain::environment::{register_jupyter_kernel, create_kernel_link};
+use crate::domain::environment::{register_jupyter_kernel, bind_kernel_to_project};
 
 #[derive(Debug, Clone, serde::Serialize)]
 pub enum CreateProgress {
@@ -18,6 +18,7 @@ pub async fn create_default_environment(app: tauri::AppHandle) -> Result<(), Str
         "Default".to_string(),
         "3.12".to_string(),
         vec!["numpy".to_string(), "pandas".to_string(), "matplotlib".to_string(), "ipykernel".to_string()],
+        None, // No project binding for default environment during migration
     ).await?;
     Ok(())
 }
@@ -27,6 +28,7 @@ pub async fn create_environment(
     name: String,
     python_version: String,
     packages: Vec<String>,
+    project_id: Option<String>,
 ) -> Result<Environment, String> {
     let env_id = name.to_lowercase().replace(" ", "-");
     let env_dir = get_env_dir(&env_id);
@@ -77,8 +79,11 @@ pub async fn create_environment(
 
     register_jupyter_kernel(&python, &env_id, &name, &python_version).await?;
 
-    if let Err(e) = create_kernel_link(&env_id) {
-        eprintln!("警告: 创建内核链接失败 ({}), 继续创建环境", e);
+    // Auto-bind to current project if provided
+    if let Some(ref proj_id) = project_id {
+        if let Err(e) = bind_kernel_to_project(proj_id, &env_id) {
+            eprintln!("警告: 绑定内核到项目失败 ({}), 继续创建环境", e);
+        }
     }
 
     let environment = Environment {

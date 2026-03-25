@@ -4,7 +4,22 @@
     "drawio": {
       "type": "local",
       "enabled": true,
-       "command": ["npx", "-y", "drawio-mcp-server"]
+      "command": [
+        "npx",
+        "-y",
+        "drawio-mcp-server"
+      ]
+    },
+    "agentation": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "agentation-mcp",
+        "server"
+      ],
+      "enabled": true,
+      "environment": {}
     }
   }
 }

@@ -5,7 +5,8 @@ pub mod models;
 pub mod state;
 
 use domain::environment::{check_env_exists, list_environments};
-use infrastructure::{get_env_dir, migrate_from_mvp};
+use domain::project::list_projects;
+use infrastructure::{get_env_dir, migrate_from_mvp, migrate_projects};
 use state::AppStateWrapper;
 use tauri::Manager;
 
@@ -28,9 +29,17 @@ pub fn run() {
             api::stop_jupyter,
             api::get_jupyter_info,
             api::get_app_state,
+            api::create_project_command,
+            api::list_projects_command,
+            api::delete_project_command,
+            api::bind_kernel_command,
+            api::unbind_kernel_command,
+            api::list_project_kernels_command,
+            api::list_unbound_kernels_command,
         ])
         .setup(|app| {
             migrate_from_mvp()?;
+            migrate_projects()?;
 
             let env_dir = get_env_dir("default");
             let state = app.state::<AppStateWrapper>();
@@ -39,6 +48,12 @@ pub fn run() {
 
             state.update_env_status(check_env_exists(), env_dir.to_string_lossy().to_string());
             state.set_environments(environments, current_env_id);
+
+            // Load projects and set initial state
+            if let Ok(projects) = list_projects() {
+                let current_project_id = projects.first().map(|p| p.id.clone());
+                state.set_projects(projects, current_project_id);
+            }
 
             Ok(())
         })

@@ -1,26 +1,33 @@
 import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
+import { Agentation } from "agentation";
 import "./App.css";
 
-import { AppState, JupyterInfo, Environment } from "./types";
+import { AppState, JupyterInfo, Environment, Project } from "./types";
 import { LoadingScreen } from "./components/screens/LoadingScreen";
 import { ProgressScreen } from "./components/screens/ProgressScreen";
 import { ErrorScreen } from "./components/screens/ErrorScreen";
 import { JupyterViewer } from "./components/JupyterViewer";
-import { EnvironmentPanel } from "./components/EnvironmentPanel";
 import { CreateEnvironmentDialog } from "./components/CreateEnvironmentDialog";
+import ProjectPanel from "./components/ProjectPanel";
+import CreateProjectDialog from "./components/CreateProjectDialog";
+import ProjectSettings from "./components/ProjectSettings";
 import { usePackageManager } from "./hooks/usePackageManager";
 import { useEnvironment } from "./hooks/useEnvironment";
 import { useJupyter } from "./hooks/useJupyter";
+import { useProject } from "./hooks/useProject";
 
 function App() {
   const [appState, setAppState] = useState<AppState>("checking");
   const [environments, setEnvironments] = useState<Environment[]>([]);
   const [currentEnvId, setCurrentEnvId] = useState<string | null>(null);
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
   const [jupyterInfo, setJupyterInfo] = useState<JupyterInfo | null>(null);
   const [progressMessage, setProgressMessage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const { startJupyter, stopJupyter } = useJupyter({
     setAppState,
@@ -29,7 +36,7 @@ function App() {
     setError,
   });
 
-  const { initializeApp, createEnvironment, deleteEnvironment } = useEnvironment({
+  const { initializeApp, createEnvironment } = useEnvironment({
     setAppState,
     setEnvironments,
     setCurrentEnvId,
@@ -37,13 +44,11 @@ function App() {
     setError,
   });
 
+  const { projects, createProject, listProjects, deleteProject } = useProject();
+
   const {
-    packages,
     listPackages,
     clearPackages,
-    installPackage,
-    uninstallPackage,
-    isLoading: packagesLoading,
   } = usePackageManager({
     setError,
     setProgressMessage,
@@ -64,6 +69,10 @@ function App() {
   }, []);
 
   useEffect(() => {
+    listProjects();
+  }, []);
+
+  useEffect(() => {
     if (!currentEnvId) {
       clearPackages();
       return;
@@ -78,7 +87,9 @@ function App() {
   };
 
   const handleStartJupyter = async () => {
-    await startJupyter(currentEnvId);
+    if (currentProjectId) {
+      await startJupyter(currentProjectId);
+    }
   };
 
   const handleCreateEnvironment = async (
@@ -90,36 +101,24 @@ function App() {
     setShowCreateDialog(false);
   };
 
-  const handleDeleteEnvironment = async (envId: string) => {
-    if (envId === currentEnvId) {
-      setCurrentEnvId(null);
-      clearPackages();
-    }
-    await deleteEnvironment(envId);
+  const handleCreateProject = async (name: string, envId: string) => {
+    await createProject(name, envId);
+    setShowCreateProjectDialog(false);
   };
 
-  const handleInstallPackage = async (packageName: string) => {
-    if (!currentEnvId) {
-      return;
+  const handleDeleteProject = async (projectId: string) => {
+    if (projectId === currentProjectId) {
+      setCurrentProjectId(null);
     }
-
-    await installPackage(currentEnvId, packageName);
+    await deleteProject(projectId);
   };
 
-  const handleUninstallPackage = async (packageName: string) => {
-    if (!currentEnvId) {
-      return;
+  const handleSelectProject = async (projectId: string) => {
+    setCurrentProjectId(projectId);
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      setSelectedProject(project);
     }
-
-    await uninstallPackage(currentEnvId, packageName);
-  };
-
-  const handleRefreshPackages = async () => {
-    if (!currentEnvId) {
-      return;
-    }
-
-    await listPackages(currentEnvId);
   };
 
   const renderContent = () => {
@@ -131,19 +130,21 @@ function App() {
         return <ProgressScreen message={progressMessage} />;
 
       case "select_env":
+      case "select_project":
         return (
-          <EnvironmentPanel
+          <ProjectPanel
+            projects={projects}
             environments={environments}
-            currentEnvId={currentEnvId}
-            selectedEnvPackages={packages}
-            isLoading={packagesLoading}
-            onSelectEnvironment={setCurrentEnvId}
+            currentProjectId={currentProjectId}
+            onCreateProject={async () => {
+              setShowCreateProjectDialog(true);
+            }}
+            onDeleteProject={handleDeleteProject}
+            onSelectProject={handleSelectProject}
             onStartJupyter={handleStartJupyter}
-            onCreateEnvironment={() => setShowCreateDialog(true)}
-            onDeleteEnvironment={handleDeleteEnvironment}
-            onRefreshPackages={handleRefreshPackages}
-            onInstallPackage={handleInstallPackage}
-            onUninstallPackage={handleUninstallPackage}
+            onCreateEnvironment={() => {
+              setShowCreateDialog(true);
+            }}
           />
         );
 
@@ -156,6 +157,7 @@ function App() {
             url={jupyterInfo.url}
             onStop={stopJupyter}
             environment={environments.find((env) => env.id === currentEnvId) ?? null}
+            project={projects.find((p) => p.id === currentProjectId) ?? null}
           />
         ) : null;
 
@@ -174,6 +176,31 @@ function App() {
           isLoading={false}
         />
       )}
+      {showCreateProjectDialog && (
+        <CreateProjectDialog
+          environments={environments}
+          onClose={() => setShowCreateProjectDialog(false)}
+          onConfirm={handleCreateProject}
+          onCreateEnvironment={() => {
+            setShowCreateProjectDialog(false);
+            setShowCreateDialog(true);
+          }}
+        />
+      )}
+      {selectedProject && (
+        <ProjectSettings
+          project={selectedProject}
+          onClose={() => setSelectedProject(null)}
+          onDeleteProject={handleDeleteProject}
+          onCreateEnvironment={createEnvironment}
+        />
+      )}
+      {import.meta.env.DEV && <Agentation
+        endpoint="http://localhost:4747"
+        onSessionCreated={(sessionId) => {
+          console.log("Session started:", sessionId);
+        }}
+      />}
     </div>
   );
 }

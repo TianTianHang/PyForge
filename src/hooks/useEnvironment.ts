@@ -49,7 +49,8 @@ export function useEnvironment({
 
       const envs = await listEnvironments();
       if (envs.length > 0) {
-        setAppState("select_env");
+        // Transition to project selection instead of environment selection
+        setAppState("select_project");
       } else {
         setError("初始化完成但未找到环境");
         setAppState("error");
@@ -65,15 +66,25 @@ export function useEnvironment({
   const createEnvironment = useCallback(async (
     name: string,
     pythonVersion: string,
-    packages: string[]
+    packages: string[],
+    projectId?: string | null
   ) => {
     try {
       setProgressMessage("正在创建环境...");
-      await invoke<Environment>("create_environment", {
+      const env = await invoke<Environment>("create_environment", {
         name,
         pythonVersion,
         packages,
       });
+
+      // If projectId is provided and auto-binding is supported, bind the kernel
+      if (projectId) {
+        await invoke("bind_kernel_command", {
+          projectId,
+          envId: env.id,
+        });
+      }
+
       await listEnvironments();
     } catch (err) {
       setError(err as string);

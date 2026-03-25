@@ -8,15 +8,33 @@ export interface Environment {
   is_default: boolean;
 }
 
-export interface InstalledPackage {
+export interface Project {
+  id: string;
   name: string;
-  version: string;
+  env_id: string;
+  path: string;
+  created_at: string;
+  is_default: boolean;
+}
+
+export interface KernelBinding {
+  env_id: string;
+  kernel_name: string;
+  is_bound: boolean;
+}
+
+export interface KernelBindingInfo {
+  env_id: string;
+  kernel_name: string;
+  bound_to_projects: string[];
 }
 
 export type AppState =
   | "checking"
   | "initializing"
   | "select_env"
+  | "select_project"
+  | "no_project"
   | "starting_jupyter"
   | "ready"
   | "error";
@@ -31,4 +49,9 @@ export interface JupyterInfo {
   token: string;
   url: string;
   notebook_dir: string;
+}
+
+export interface InstalledPackage {
+  name: string;
+  version: string;
 }

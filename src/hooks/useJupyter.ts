@@ -15,13 +15,13 @@ export function useJupyter({
   setProgressMessage,
   setError,
 }: UseJupyterProps) {
-  const startJupyter = useCallback(async (envId?: string | null) => {
+  const startJupyter = useCallback(async (projectId?: string | null) => {
     try {
       setAppState("starting_jupyter");
       setProgressMessage("正在启动 Jupyter Server...");
 
       const info = await invoke<JupyterInfo>("start_jupyter", {
-        envId: envId ?? null,
+        projectId: projectId ?? null,
       });
       setJupyterInfo(info);
       setAppState("ready");
@@ -35,7 +35,7 @@ export function useJupyter({
     try {
       await invoke<string>("stop_jupyter");
       setJupyterInfo(null);
-      setAppState("select_env");
+      setAppState("select_project"); // Updated state for project selection
     } catch (err) {
       console.error("停止 Jupyter 失败:", err);
     }

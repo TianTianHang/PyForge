@@ -6,7 +6,7 @@ pub use base_env::{ensure_base_env, get_base_python};
 pub use launcher::start_jupyter_server;
 pub use terminator::stop_jupyter_server;
 
-use crate::infrastructure::{find_available_port, get_kernel_store_dir, get_project_dir};
+use crate::infrastructure::{ensure_dir, find_available_port, get_project_dir};
 use crate::models::{JupyterInfo, JupyterServerConfig};
 
 pub struct JupyterServer {
@@ -28,13 +28,12 @@ impl JupyterServer {
         let port = find_available_port()?;
         let notebook_dir = get_project_dir().to_string_lossy().to_string();
 
-        let global_kernel_dir = get_kernel_store_dir();
+        // Always specify kernel directories (create if not exists)
+        // This ensures Jupyter knows where to find project-scoped kernels
         let project_kernel_dir = get_project_dir().join("kernels");
-        let mut kernel_dirs: Vec<String> = Vec::new();
-        if project_kernel_dir.exists() {
-            kernel_dirs.push(project_kernel_dir.to_string_lossy().to_string());
-        }
-        kernel_dirs.push(global_kernel_dir.to_string_lossy().to_string());
+        let _ = ensure_dir(&project_kernel_dir);
+
+        let kernel_dirs = vec![project_kernel_dir.to_string_lossy().to_string()];
 
         let config = JupyterServerConfig {
             port,

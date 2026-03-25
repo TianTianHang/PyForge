@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{Environment, EnvStatus, JupyterInfo};
+use super::{Environment, EnvStatus, JupyterInfo, Project};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppState {
@@ -9,4 +9,6 @@ pub struct AppState {
     pub current_env_id: Option<String>,
     pub jupyter_info: Option<JupyterInfo>,
     pub jupyter_pid: Option<u32>,
+    pub projects: Vec<Project>,
+    pub current_project_id: Option<String>,
 }

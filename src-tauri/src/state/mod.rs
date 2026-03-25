@@ -1,4 +1,4 @@
-use crate::models::{AppState, EnvStatus, JupyterInfo};
+use crate::models::{AppState, EnvStatus, JupyterInfo, Project};
 use std::sync::Mutex;
 
 pub struct AppStateWrapper(pub Mutex<AppState>);
@@ -39,6 +39,22 @@ impl AppStateWrapper {
         state_lock.env_status.clone()
     }
 
+    pub fn set_projects(&self, projects: Vec<Project>, current_project_id: Option<String>) {
+        let mut state_lock = self.0.lock().unwrap();
+        state_lock.projects = projects;
+        state_lock.current_project_id = current_project_id;
+    }
+
+    pub fn get_projects(&self) -> Vec<Project> {
+        let state_lock = self.0.lock().unwrap();
+        state_lock.projects.clone()
+    }
+
+    pub fn get_current_project_id(&self) -> Option<String> {
+        let state_lock = self.0.lock().unwrap();
+        state_lock.current_project_id.clone()
+    }
+
     pub fn get_app_state(&self) -> AppState {
         let state_lock = self.0.lock().unwrap();
         AppState {
@@ -47,6 +63,8 @@ impl AppStateWrapper {
             current_env_id: state_lock.current_env_id.clone(),
             jupyter_info: state_lock.jupyter_info.clone(),
             jupyter_pid: state_lock.jupyter_pid,
+            projects: state_lock.projects.clone(),
+            current_project_id: state_lock.current_project_id.clone(),
         }
     }
 }
@@ -62,6 +80,8 @@ impl Default for AppStateWrapper {
             current_env_id: None,
             jupyter_info: None,
             jupyter_pid: None,
+            projects: Vec::new(),
+            current_project_id: None,
         }))
     }
 }

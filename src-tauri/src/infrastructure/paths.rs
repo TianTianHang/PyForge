@@ -22,8 +22,16 @@ pub fn get_project_dir() -> PathBuf {
     get_projects_dir()
 }
 
+pub fn get_project_dir_by_id(project_id: &str) -> PathBuf {
+    get_projects_dir().join(project_id)
+}
+
 pub fn get_env_metadata_path() -> PathBuf {
     get_pyforge_root().join(".envs-metadata.json")
+}
+
+pub fn get_projects_metadata_path() -> PathBuf {
+    get_pyforge_root().join(".projects-metadata.json")
 }
 
 pub fn ensure_dir(path: &Path) -> Result<(), String> {
@@ -66,5 +74,5 @@ pub fn get_base_python_path() -> PathBuf {
 }
 
 pub fn get_project_kernel_dir(project_id: &str) -> PathBuf {
-    get_project_dir().join(project_id).join("kernels")
+    get_project_dir_by_id(project_id).join("kernels")
 }
