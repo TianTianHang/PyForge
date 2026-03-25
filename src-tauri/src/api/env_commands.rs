@@ -2,8 +2,38 @@ use crate::domain::environment::{
     check_env_exists, create_default_environment, create_environment as create_environment_impl,
     delete_environment as delete_environment_impl, list_environments as list_environments_impl,
 };
+use crate::domain::jupyter::ensure_base_env;
 use crate::infrastructure::get_env_dir;
 use crate::models::{EnvStatus, Environment, InstalledPackage};
+use std::sync::OnceLock;
+use tokio::sync::Mutex;
+
+static INIT_MUTEX: OnceLock<Mutex<bool>> = OnceLock::new();
+
+fn get_init_mutex() -> &'static Mutex<bool> {
+    INIT_MUTEX.get_or_init(|| Mutex::new(false))
+}
+
+/// 应用初始化：确保 base 环境和 default 环境存在
+#[tauri::command]
+pub async fn initialize_app(app: tauri::AppHandle) -> Result<String, String> {
+   
+    let _guard = get_init_mutex().lock().await;
+  
+
+    if check_env_exists() {
+        return Ok("环境已存在".to_string());
+    }
+
+
+    ensure_base_env(&app).await?;
+  
+    if !check_env_exists() {
+        create_default_environment(app).await?;
+    }
+
+    Ok("初始化完成".to_string())
+}
 
 /// 检查环境状态
 #[tauri::command]

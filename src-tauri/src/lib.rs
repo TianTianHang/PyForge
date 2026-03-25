@@ -15,6 +15,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .manage(AppStateWrapper::default())
         .invoke_handler(tauri::generate_handler![
+            api::initialize_app,
             api::check_env,
             api::create_env,
             api::list_environments,

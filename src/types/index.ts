@@ -15,8 +15,7 @@ export interface InstalledPackage {
 
 export type AppState =
   | "checking"
-  | "no_env"
-  | "creating_env"
+  | "initializing"
   | "select_env"
   | "starting_jupyter"
   | "ready"

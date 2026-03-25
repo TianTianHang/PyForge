@@ -12,7 +12,10 @@ pub async fn register_jupyter_kernel(
     let kernel_name = format!("pyforge-{}", env_id);
     let display_name = format!("PyForge - {} (Python {})", env_name, python_version);
 
-    let kernel_dir = get_kernel_store_dir().join(&kernel_name);
+    let kernel_store = get_kernel_store_dir();
+    let kernel_dir = kernel_store.join(&kernel_name);
+
+    ensure_dir(&kernel_store)?;
     ensure_dir(&kernel_dir)?;
 
     let kernel_json = json!({

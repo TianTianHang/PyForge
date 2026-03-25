@@ -2,7 +2,7 @@ pub mod base_env;
 pub mod launcher;
 pub mod terminator;
 
-pub use base_env::ensure_base_env;
+pub use base_env::{ensure_base_env, get_base_python};
 pub use launcher::start_jupyter_server;
 pub use terminator::stop_jupyter_server;
 
@@ -23,8 +23,8 @@ impl JupyterServer {
     }
 
     pub async fn start(&mut self, env_id: &str) -> Result<JupyterInfo, String> {
-        let _ = env_id; // env_id no longer determines the Jupyter executable
-        let python_path = ensure_base_env().await?;
+        let _ = env_id;
+        let python_path = get_base_python()?;
         let port = find_available_port()?;
         let notebook_dir = get_project_dir().to_string_lossy().to_string();
 

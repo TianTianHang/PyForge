@@ -30,26 +30,29 @@ pub async fn create_environment(
 ) -> Result<Environment, String> {
     let env_id = name.to_lowercase().replace(" ", "-");
     let env_dir = get_env_dir(&env_id);
+    let python = get_python_path(&env_id);
 
     ensure_dir(&get_pyforge_root())?;
-    ensure_dir(&env_dir)?;
 
-    let _ = app.emit("env-progress", format!("正在创建虚拟环境 ({})...", name));
+    if !python.exists() {
+        ensure_dir(&env_dir)?;
 
-    let output = Command::new("uv")
-        .args(["venv", env_dir.to_str().unwrap(), "--python", &python_version])
-        .output()
-        .await
-        .map_err(|e| format!("执行 uv venv 失败: {}", e))?;
+        let _ = app.emit("env-progress", format!("正在创建虚拟环境 ({})...", name));
 
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("创建虚拟环境失败: {}", stderr));
+        let output = Command::new("uv")
+            .args(["venv", env_dir.to_str().unwrap(), "--python", &python_version])
+            .output()
+            .await
+            .map_err(|e| format!("执行 uv venv 失败: {}", e))?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(format!("创建虚拟环境失败: {}", stderr));
+        }
     }
 
     let _ = app.emit("env-progress", format!("正在安装基础包 ({})...", packages.join(", ")));
 
-    let python = get_python_path(&env_id);
     let mirror_url = PYPI_MIRROR_URL;
 
     if !packages.is_empty() {

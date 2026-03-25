@@ -1,5 +1,5 @@
 use crate::domain::environment::list_environments;
-use crate::domain::jupyter::{ensure_base_env, start_jupyter_server, stop_jupyter_server};
+use crate::domain::jupyter::{get_base_python, start_jupyter_server, stop_jupyter_server};
 use crate::infrastructure::{find_available_port, get_project_dir, get_kernel_store_dir};
 use crate::models::{JupyterInfo, JupyterServerConfig};
 use crate::state::AppStateWrapper;
@@ -17,7 +17,7 @@ pub async fn start_jupyter(
         }
     }
 
-    let python_path = ensure_base_env().await?;
+    let python_path = get_base_python()?;
 
     let environments = list_environments()?;
     let _selected_env = if let Some(env_id) = env_id {

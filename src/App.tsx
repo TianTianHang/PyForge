@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import "./App.css";
 
-import { AppState, EnvStatus, JupyterInfo, Environment } from "./types";
+import { AppState, JupyterInfo, Environment } from "./types";
 import { LoadingScreen } from "./components/screens/LoadingScreen";
 import { ProgressScreen } from "./components/screens/ProgressScreen";
 import { ErrorScreen } from "./components/screens/ErrorScreen";
@@ -15,7 +15,6 @@ import { useJupyter } from "./hooks/useJupyter";
 
 function App() {
   const [appState, setAppState] = useState<AppState>("checking");
-  const [, setEnvStatus] = useState<EnvStatus | null>(null);
   const [environments, setEnvironments] = useState<Environment[]>([]);
   const [currentEnvId, setCurrentEnvId] = useState<string | null>(null);
   const [jupyterInfo, setJupyterInfo] = useState<JupyterInfo | null>(null);
@@ -30,9 +29,8 @@ function App() {
     setError,
   });
 
-  const { checkEnvironment, createEnvironment, deleteEnvironment } = useEnvironment({
+  const { initializeApp, createEnvironment, deleteEnvironment } = useEnvironment({
     setAppState,
-    setEnvStatus,
     setEnvironments,
     setCurrentEnvId,
     setProgressMessage,
@@ -52,8 +50,8 @@ function App() {
   });
 
   useEffect(() => {
-    checkEnvironment();
-  }, [checkEnvironment]);
+    initializeApp();
+  }, [initializeApp]);
 
   useEffect(() => {
     const unlisten = listen<string>("env-progress", (event) => {
@@ -76,7 +74,7 @@ function App() {
 
   const retry = () => {
     setError(null);
-    checkEnvironment();
+    initializeApp();
   };
 
   const handleStartJupyter = async () => {
@@ -129,24 +127,7 @@ function App() {
       case "checking":
         return <LoadingScreen message="正在检查环境..." />;
 
-      case "no_env":
-        return (
-          <div className="welcome-screen">
-            <h1>Welcome to PyForge</h1>
-            <p>创建您的第一个 Python 开发环境</p>
-            <div className="welcome-info">
-              <button
-                type="button"
-                className="primary-button"
-                onClick={() => setShowCreateDialog(true)}
-              >
-                创建环境
-              </button>
-            </div>
-          </div>
-        );
-
-      case "creating_env":
+      case "initializing":
         return <ProgressScreen message={progressMessage} />;
 
       case "select_env":
@@ -190,7 +171,7 @@ function App() {
         <CreateEnvironmentDialog
           onClose={() => setShowCreateDialog(false)}
           onCreateEnvironment={handleCreateEnvironment}
-          isLoading={appState === "creating_env"}
+          isLoading={false}
         />
       )}
     </div>

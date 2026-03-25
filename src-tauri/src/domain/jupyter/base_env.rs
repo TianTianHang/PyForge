@@ -1,19 +1,30 @@
 use std::path::PathBuf;
+use std::sync::OnceLock;
+use tauri::Emitter;
 use tokio::process::Command;
+use tokio::sync::Mutex;
 
 use crate::infrastructure::{
     ensure_dir, get_base_env_dir, get_base_python_path, PYPI_MIRROR_URL,
 };
 
-pub async fn ensure_base_env() -> Result<PathBuf, String> {
+static BASE_ENV_MUTEX: OnceLock<Mutex<bool>> = OnceLock::new();
+
+fn get_base_env_mutex() -> &'static Mutex<bool> {
+    BASE_ENV_MUTEX.get_or_init(|| Mutex::new(false))
+}
+
+fn check_base_env_exists() -> bool {
+    let base_dir = get_base_env_dir();
+    let python_path = get_base_python_path();
+    base_dir.exists() && python_path.exists()
+}
+
+async fn create_base_env(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     let base_dir = get_base_env_dir();
     let python_path = get_base_python_path();
 
-    if base_dir.exists() && python_path.exists() {
-        return Ok(python_path);
-    }
-
-    eprintln!("Base environment not found, creating at: {:?}", base_dir);
+    let _ = app.emit("env-progress", "正在创建基础环境...");
     ensure_dir(&base_dir)?;
 
     let output = Command::new("uv")
@@ -32,7 +43,7 @@ pub async fn ensure_base_env() -> Result<PathBuf, String> {
         return Err(format!("Failed to create base venv: {}", stderr));
     }
 
-    eprintln!("Installing JupyterLab in base environment...");
+    let _ = app.emit("env-progress", "正在安装 JupyterLab...");
     let output = Command::new("uv")
         .args([
             "pip", "install", "--python",
@@ -49,6 +60,26 @@ pub async fn ensure_base_env() -> Result<PathBuf, String> {
         return Err(format!("Failed to install JupyterLab: {}", stderr));
     }
 
-    eprintln!("Base environment ready at: {:?}", base_dir);
     Ok(python_path)
+}
+
+pub async fn ensure_base_env(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    if check_base_env_exists() {
+        return Ok(get_base_python_path());
+    }
+
+    let _guard = get_base_env_mutex().lock().await;
+
+    if check_base_env_exists() {
+        return Ok(get_base_python_path());
+    }
+
+    create_base_env(app).await
+}
+
+pub fn get_base_python() -> Result<PathBuf, String> {
+    if !check_base_env_exists() {
+        return Err("Base environment does not exist".to_string());
+    }
+    Ok(get_base_python_path())
 }
