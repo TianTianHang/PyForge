@@ -1,5 +1,4 @@
 import { Environment, InstalledPackage } from "../types";
-import "../App.css";
 import { EnvironmentList } from "./EnvironmentList";
 import { EnvironmentDetail } from "./EnvironmentDetail";
 
@@ -33,14 +32,14 @@ export function EnvironmentPanel({
   const currentEnvironment = environments.find((env) => env.id === currentEnvId) ?? null;
 
   return (
-    <div className="environment-panel-page">
-      <div className="environment-panel">
-        <div className="environment-list-section">
-          <div className="section-header">
-            <h3>环境管理</h3>
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex flex-1 gap-4 overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex justify-between items-center px-4 py-3 border-b border-slate-200 flex-shrink-0">
+            <h3 className="text-lg font-semibold text-slate-800 m-0">环境管理</h3>
             <button
               type="button"
-              className="primary-button"
+              className="bg-blue-600 hover:bg-blue-700 text-white border-none px-4 py-2 text-sm rounded-lg cursor-pointer transition-colors"
               onClick={onCreateEnvironment}
             >
               创建新环境
@@ -66,14 +65,16 @@ export function EnvironmentPanel({
         />
       </div>
 
-      <button
-        type="button"
-        className="toolbar-button bottom-toolbar-button"
-        onClick={onStartJupyter}
-        disabled={!currentEnvId}
-      >
-        {currentEnvironment ? `启动 Jupyter (${currentEnvironment.name})` : "请选择环境"}
-      </button>
+      <div className="relative mt-4">
+        <button
+          type="button"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 min-w-[200px] bg-blue-600 hover:bg-blue-700 text-white border-none px-6 py-2.5 text-sm rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={onStartJupyter}
+          disabled={!currentEnvId}
+        >
+          {currentEnvironment ? `启动 Jupyter (${currentEnvironment.name})` : "请选择环境"}
+        </button>
+      </div>
     </div>
   );
 }

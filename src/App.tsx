@@ -115,10 +115,6 @@ function App() {
 
   const handleSelectProject = async (projectId: string) => {
     setCurrentProjectId(projectId);
-    const project = projects.find(p => p.id === projectId);
-    if (project) {
-      setSelectedProject(project);
-    }
   };
 
   const renderContent = () => {
@@ -142,6 +138,12 @@ function App() {
             onDeleteProject={handleDeleteProject}
             onSelectProject={handleSelectProject}
             onStartJupyter={handleStartJupyter}
+            onOpenSettings={(projectId) => {
+              const project = projects.find(p => p.id === projectId);
+              if (project) {
+                setSelectedProject(project);
+              }
+            }}
             onCreateEnvironment={() => {
               setShowCreateDialog(true);
             }}
@@ -167,7 +169,7 @@ function App() {
   };
 
   return (
-    <div className="app">
+    <div className="h-full w-full flex flex-col">
       {renderContent()}
       {showCreateDialog && (
         <CreateEnvironmentDialog

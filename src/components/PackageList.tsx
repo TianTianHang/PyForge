@@ -1,5 +1,4 @@
 import { InstalledPackage } from "../types";
-import "../App.css";
 
 interface PackageListProps {
   packages: InstalledPackage[];
@@ -13,28 +12,28 @@ export function PackageList({
   onUninstallPackage,
 }: PackageListProps) {
   if (isLoading) {
-    return <div className="empty-packages">正在加载包列表...</div>;
+    return <div className="flex flex-col items-center justify-center p-8 text-slate-400 text-center flex-1">正在加载包列表...</div>;
   }
 
   if (packages.length === 0) {
     return (
-      <div className="empty-packages">
+      <div className="flex flex-col items-center justify-center p-8 text-slate-400 text-center flex-1">
         <p>暂无已安装的包</p>
       </div>
     );
   }
 
   return (
-    <div className="package-items">
+    <div className="p-4 overflow-y-auto flex-1">
       {packages.map((pkg) => (
-        <div key={pkg.name} className="package-item">
-          <div className="package-info">
-            <span className="package-name">{pkg.name}</span>
-            <span className="package-version">{pkg.version}</span>
+        <div key={pkg.name} className="flex justify-between items-center px-3 py-2.5 border border-slate-200 rounded-md mb-2 bg-slate-50">
+          <div className="flex items-center gap-4">
+            <span className="font-medium text-slate-800">{pkg.name}</span>
+            <span className="text-sm text-slate-500">{pkg.version}</span>
           </div>
           <button
             type="button"
-            className="uninstall-button"
+            className="bg-amber-500 hover:bg-amber-600 text-white border-none px-3 py-1.5 text-sm rounded cursor-pointer transition-colors"
             onClick={() => onUninstallPackage(pkg.name)}
           >
             卸载

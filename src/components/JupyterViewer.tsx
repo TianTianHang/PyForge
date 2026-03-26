@@ -16,34 +16,37 @@ export function JupyterViewer({
   const [showProjectSettings, setShowProjectSettings] = useState(false);
 
   return (
-    <div className="jupyter-viewer">
+    <div className="flex flex-col h-full w-full">
       {showProjectSettings && project && (
         <ProjectSettings
           project={project}
           onClose={() => setShowProjectSettings(false)}
         />
       )}
-      <div className="jupyter-toolbar">
-        <span className="toolbar-title">
+      <div className="flex items-center justify-between px-4 py-2 bg-slate-800 text-white">
+        <span className="font-semibold text-base">
           PyForge {project && `- ${project.name}`}
         </span>
-        <div className="toolbar-actions">
+        <div className="flex gap-2">
           {project && (
             <button
-              className="toolbar-button settings-button"
+              className="bg-white/10 text-white border border-white/20 px-4 py-1.5 text-sm rounded cursor-pointer transition-colors hover:bg-white/20"
               onClick={() => setShowProjectSettings(true)}
             >
               项目设置
             </button>
           )}
-          <button className="toolbar-button stop-button" onClick={onStop}>
+          <button
+            className="bg-white/10 text-white border border-white/20 px-4 py-1.5 text-sm rounded cursor-pointer transition-colors hover:bg-white/20"
+            onClick={onStop}
+          >
             停止
           </button>
         </div>
       </div>
       {(environment || project) && (
-        <div className="environment-info">
-          {project && <span>项目: {project.name} | </span>}
+        <div className="bg-white/95 px-4 py-2 text-sm text-slate-500 border-b border-slate-200 backdrop-blur-sm">
+          {project && <span className="after:content-['•'] after:mx-2 after:text-slate-300">项目: {project.name}</span>}
           {environment && (
             <span>Python {environment.python_version} | 内核: {environment.kernel_name}</span>
           )}
@@ -51,7 +54,7 @@ export function JupyterViewer({
       )}
       <iframe
         src={url}
-        className="jupyter-iframe"
+        className="flex-1 w-full border-0"
         title="JupyterLab"
         allow="clipboard-read; clipboard-write"
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"

@@ -1,5 +1,4 @@
 import { useState, type KeyboardEvent } from "react";
-import "../App.css";
 
 interface InstallPackageInputProps {
   disabled?: boolean;
@@ -30,19 +29,19 @@ export function InstallPackageInput({
   };
 
   return (
-    <div className="install-input">
+    <div className="flex gap-2">
       <input
         type="text"
         value={packageName}
         placeholder="输入包名"
-        className="package-input"
+        className="flex-1 px-3 py-2 border border-slate-300 rounded-md text-base focus:outline-none focus:border-blue-500 disabled:opacity-50"
         disabled={disabled}
         onChange={(e) => setPackageName(e.target.value)}
         onKeyDown={handleKeyDown}
       />
       <button
         type="button"
-        className="primary-button"
+        className="bg-blue-600 hover:bg-blue-700 text-white border-none px-4 py-2 text-base rounded-md cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={disabled || !packageName.trim()}
         onClick={submit}
       >

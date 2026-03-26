@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Project, KernelBindingInfo } from '../types';
 import { useKernelBinding } from '../hooks/useKernelBinding';
-import './ProjectSettings.css';
 
 interface ProjectSettingsProps {
   project: Project;
@@ -33,7 +32,6 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
   const [newEnvPackages, setNewEnvPackages] = useState('');
   const [tab, setTab] = useState<'kernels' | 'environments' | 'delete'>('kernels');
 
-  // Environment creation state
   const [isCreatingEnv, setIsCreatingEnv] = useState(false);
   const [createEnvError, setCreateEnvError] = useState<string | null>(null);
   const [createEnvSuccess, setCreateEnvSuccess] = useState<string | null>(null);
@@ -84,7 +82,6 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
       return;
     }
 
-    // Clear previous state
     setCreateEnvError(null);
     setCreateEnvSuccess(null);
     setIsCreatingEnv(true);
@@ -97,15 +94,12 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
 
       await onCreateEnvironment(newEnvName, selectedNewEnvPython, packages, project.id);
 
-      // Success!
       setCreateEnvSuccess(`环境 "${newEnvName}" 创建并绑定成功！`);
 
-      // Clear form
       setNewEnvName('');
       setSelectedNewEnvPython('3.12');
       setNewEnvPackages('');
 
-      // Refresh kernel list after a short delay
       setTimeout(async () => {
         await loadKernels();
         setCreateEnvSuccess(null);
@@ -126,15 +120,15 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
   };
 
   const renderKernelsTab = () => (
-    <div className="settings-tab-content">
-      <h4>绑定内核</h4>
-      <div className="kernels-list">
+    <div className="p-4">
+      <h4 className="text-base font-semibold text-slate-800 mb-3">绑定内核</h4>
+      <div className="flex flex-col gap-2">
         {boundKernels.length > 0 ? (
           boundKernels.map((kernel) => (
-            <div key={kernel.env_id} className="kernel-item">
-              <span className="kernel-name">{kernel.kernel_name}</span>
+            <div key={kernel.env_id} className="flex justify-between items-center p-3 border border-slate-200 rounded-lg bg-slate-50">
+              <span className="font-medium text-slate-800">{kernel.kernel_name}</span>
               <button
-                className="unbind-button"
+                className="bg-amber-500 hover:bg-amber-600 text-white border-none px-3 py-1.5 text-sm rounded cursor-pointer transition-colors"
                 onClick={() => handleUnbindKernel(kernel.env_id)}
               >
                 解绑
@@ -142,16 +136,17 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
             </div>
           ))
         ) : (
-          <p className="no-kernels">暂无绑定的内核</p>
+          <p className="text-slate-400 text-center py-4">暂无绑定的内核</p>
         )}
       </div>
 
-      <h4>添加内核</h4>
-      {kernelError && <div className="error-message">{kernelError}</div>}
-      <div className="add-kernel">
+      <h4 className="text-base font-semibold text-slate-800 mt-6 mb-3">添加内核</h4>
+      {kernelError && <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg border border-red-200 mb-3">{kernelError}</div>}
+      <div className="flex gap-2">
         <select
           value={selectedUnboundKernel}
           onChange={(e) => setSelectedUnboundKernel(e.target.value)}
+          className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-base focus:outline-none focus:border-blue-500"
         >
           <option value="">选择要添加的内核</option>
           {unboundKernels.map((kernel) => (
@@ -163,6 +158,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
         <button
           onClick={handleBindKernel}
           disabled={!selectedUnboundKernel || kernelLoading}
+          className="bg-blue-600 hover:bg-blue-700 text-white border-none px-4 py-2 text-sm rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           添加
         </button>
@@ -171,11 +167,11 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
   );
 
   const renderEnvironmentsTab = () => (
-    <div className="settings-tab-content">
-      <h4>在项目中创建新环境</h4>
-      <form onSubmit={handleCreateNewEnv} className="create-env-form">
-        <div className="form-group">
-          <label>环境名称</label>
+    <div className="p-4">
+      <h4 className="text-base font-semibold text-slate-800 mb-3">在项目中创建新环境</h4>
+      <form onSubmit={handleCreateNewEnv}>
+        <div className="mb-4">
+          <label className="block mb-2 font-medium text-slate-800">环境名称</label>
           <input
             type="text"
             value={newEnvName}
@@ -183,14 +179,16 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
             placeholder="输入环境名称..."
             required
             disabled={isCreatingEnv}
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-base focus:outline-none focus:border-blue-500 disabled:opacity-50"
           />
         </div>
-        <div className="form-group">
-          <label>Python 版本</label>
+        <div className="mb-4">
+          <label className="block mb-2 font-medium text-slate-800">Python 版本</label>
           <select
             value={selectedNewEnvPython}
             onChange={(e) => setSelectedNewEnvPython(e.target.value)}
             disabled={isCreatingEnv}
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-base focus:outline-none focus:border-blue-500 disabled:opacity-50"
           >
             <option value="3.12">3.12</option>
             <option value="3.11">3.11</option>
@@ -198,32 +196,32 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
             <option value="3.9">3.9</option>
           </select>
         </div>
-        <div className="form-group">
-          <label>安装的包（可选）</label>
+        <div className="mb-4">
+          <label className="block mb-2 font-medium text-slate-800">安装的包（可选）</label>
           <textarea
             value={newEnvPackages}
             onChange={(e) => setNewEnvPackages(e.target.value)}
             placeholder="用逗号分隔包名，如：numpy, pandas, matplotlib"
             disabled={isCreatingEnv}
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-base min-h-20 resize-y focus:outline-none focus:border-blue-500 disabled:opacity-50"
           />
         </div>
 
-        {/* Status messages */}
         {createEnvError && (
-          <div className="error-message" style={{ marginTop: '10px', padding: '10px', backgroundColor: '#fee', border: '1px solid #f88', borderRadius: '4px' }}>
+          <div className="mt-2.5 p-2.5 bg-red-50 text-red-600 border border-red-300 rounded">
             {createEnvError}
           </div>
         )}
         {createEnvSuccess && (
-          <div className="success-message" style={{ marginTop: '10px', padding: '10px', backgroundColor: '#efe', border: '1px solid #8f8', borderRadius: '4px' }}>
+          <div className="mt-2.5 p-2.5 bg-green-50 text-green-600 border border-green-300 rounded">
             {createEnvSuccess}
           </div>
         )}
 
         <button
           type="submit"
-          className="create-env-button"
           disabled={isCreatingEnv || !newEnvName.trim()}
+          className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white border-none px-4 py-2.5 text-sm rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isCreatingEnv ? '创建中...' : '创建环境并自动绑定'}
         </button>
@@ -232,18 +230,18 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
   );
 
   const renderDeleteTab = () => (
-    <div className="settings-tab-content delete-tab">
-      <div className="delete-warning">
-        <h4>警告</h4>
-        <p>删除项目将永久删除项目及其所有内容，包括：</p>
-        <ul>
+    <div className="p-4">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+        <h4 className="text-base font-semibold text-red-600 mb-2">警告</h4>
+        <p className="text-slate-600 mb-2">删除项目将永久删除项目及其所有内容，包括：</p>
+        <ul className="list-disc list-inside text-slate-600 mb-2">
           <li>项目目录下的所有文件</li>
           <li>该项目的内核绑定</li>
         </ul>
-        <p>此操作<strong>无法撤销</strong>。</p>
+        <p className="text-slate-600">此操作<strong>无法撤销</strong>。</p>
       </div>
       <button
-        className="delete-project-button"
+        className="w-full bg-red-500 hover:bg-red-600 text-white border-none px-4 py-2.5 text-sm rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={handleDeleteProject}
         disabled={project.is_default}
       >
@@ -253,40 +251,45 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
   );
 
   return (
-    <div className="settings-overlay" onClick={onClose}>
-      <div className="settings-content" onClick={(e) => e.stopPropagation()}>
-        <div className="settings-header">
-          <h3>项目设置</h3>
-          <button className="close-button" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-xl shadow-lg w-[90%] max-w-lg max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center px-6 py-4 border-b border-slate-200">
+          <h3 className="text-xl font-semibold text-slate-800 m-0">项目设置</h3>
+          <button
+            className="bg-none border-none text-2xl text-slate-400 w-8 h-8 flex items-center justify-center rounded-full cursor-pointer transition-colors hover:bg-slate-100 hover:text-slate-600"
+            onClick={onClose}
+          >
             ×
           </button>
         </div>
 
-        <div className="settings-body">
-          <div className="settings-tabs">
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex border-b border-slate-200">
             <button
-              className={`tab-button ${tab === 'kernels' ? 'active' : ''}`}
+              className={`flex-1 px-4 py-3 text-sm font-medium border-none cursor-pointer transition-colors ${tab === 'kernels' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-slate-500 bg-white hover:bg-slate-50'}`}
               onClick={() => setTab('kernels')}
             >
               内核管理
             </button>
             <button
-              className={`tab-button ${tab === 'environments' ? 'active' : ''}`}
+              className={`flex-1 px-4 py-3 text-sm font-medium border-none cursor-pointer transition-colors ${tab === 'environments' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-slate-500 bg-white hover:bg-slate-50'}`}
               onClick={() => setTab('environments')}
             >
               环境管理
             </button>
             <button
-              className={`tab-button ${tab === 'delete' ? 'active' : ''}`}
+              className={`flex-1 px-4 py-3 text-sm font-medium border-none cursor-pointer transition-colors ${tab === 'delete' ? 'text-red-600 border-b-2 border-red-600 bg-red-50' : 'text-slate-500 bg-white hover:bg-slate-50'}`}
               onClick={() => setTab('delete')}
             >
               删除项目
             </button>
           </div>
 
-          {tab === 'kernels' && renderKernelsTab()}
-          {tab === 'environments' && renderEnvironmentsTab()}
-          {tab === 'delete' && renderDeleteTab()}
+          <div className="flex-1 overflow-y-auto">
+            {tab === 'kernels' && renderKernelsTab()}
+            {tab === 'environments' && renderEnvironmentsTab()}
+            {tab === 'delete' && renderDeleteTab()}
+          </div>
         </div>
       </div>
     </div>
