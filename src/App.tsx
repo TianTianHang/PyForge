@@ -16,6 +16,9 @@ import { usePackageManager } from "./hooks/usePackageManager";
 import { useEnvironment } from "./hooks/useEnvironment";
 import { useJupyter } from "./hooks/useJupyter";
 import { useProject } from "./hooks/useProject";
+import { useSettings } from "./hooks/useSettings";
+import Settings from "./components/Settings/Settings";
+import { AppConfig } from "./types";
 
 function App() {
   const [appState, setAppState] = useState<AppState>("checking");
@@ -28,6 +31,8 @@ function App() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [settingsConfig, setSettingsConfig] = useState<AppConfig | null>(null);
 
   const { startJupyter, stopJupyter } = useJupyter({
     setAppState,
@@ -46,17 +51,30 @@ function App() {
 
   const { projects, createProject, listProjects, deleteProject } = useProject();
 
-  const {
-    listPackages,
-    clearPackages,
-  } = usePackageManager({
+  const { listPackages, clearPackages } = usePackageManager({
+    setError,
+    setProgressMessage,
+  });
+
+  const { getConfig, updateConfig } = useSettings({
     setError,
     setProgressMessage,
   });
 
   useEffect(() => {
     initializeApp();
-  }, [initializeApp]);
+
+    // Load config for settings
+    const loadConfig = async () => {
+      try {
+        const config = await getConfig();
+        setSettingsConfig(config);
+      } catch (err) {
+        console.error("Failed to load config:", err);
+      }
+    };
+    loadConfig();
+  }, [initializeApp, getConfig]);
 
   useEffect(() => {
     const unlisten = listen<string>("env-progress", (event) => {
@@ -128,26 +146,36 @@ function App() {
       case "select_env":
       case "select_project":
         return (
-          <ProjectPanel
-            projects={projects}
-            environments={environments}
-            currentProjectId={currentProjectId}
-            onCreateProject={async () => {
-              setShowCreateProjectDialog(true);
-            }}
-            onDeleteProject={handleDeleteProject}
-            onSelectProject={handleSelectProject}
-            onStartJupyter={handleStartJupyter}
-            onOpenSettings={(projectId) => {
-              const project = projects.find(p => p.id === projectId);
-              if (project) {
-                setSelectedProject(project);
-              }
-            }}
-            onCreateEnvironment={() => {
-              setShowCreateDialog(true);
-            }}
-          />
+          <div className="h-full w-full flex flex-col">
+            {/* Settings Button */}
+            <button
+              className="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg shadow-sm transition-colors z-10"
+              onClick={() => setShowSettings(true)}
+            >
+              设置
+            </button>
+
+            <ProjectPanel
+              projects={projects}
+              environments={environments}
+              currentProjectId={currentProjectId}
+              onCreateProject={async () => {
+                setShowCreateProjectDialog(true);
+              }}
+              onDeleteProject={handleDeleteProject}
+              onSelectProject={handleSelectProject}
+              onStartJupyter={handleStartJupyter}
+              onOpenSettings={(projectId) => {
+                const project = projects.find(p => p.id === projectId);
+                if (project) {
+                  setSelectedProject(project);
+                }
+              }}
+              onCreateEnvironment={() => {
+                setShowCreateDialog(true);
+              }}
+            />
+          </div>
         );
 
       case "starting_jupyter":
@@ -195,6 +223,19 @@ function App() {
           onClose={() => setSelectedProject(null)}
           onDeleteProject={handleDeleteProject}
           onCreateEnvironment={createEnvironment}
+        />
+      )}
+      {showSettings && settingsConfig && (
+        <Settings
+          onClose={() => setShowSettings(false)}
+          initialConfig={settingsConfig}
+          onSave={async (config) => {
+            await updateConfig(config);
+          }}
+          onReset={async () => {
+            // TODO: Get default config from backend
+            return settingsConfig;
+          }}
         />
       )}
       {import.meta.env.DEV && <Agentation

@@ -55,3 +55,17 @@ export interface InstalledPackage {
   name: string;
   version: string;
 }
+
+// Export config types
+export type {
+  AppConfig,
+  SourceConfig,
+  PythonConfig,
+  PathsConfig,
+  JupyterConfig,
+  DefaultsConfig,
+  ValidationResult,
+  MigrationProgress,
+  MigrationResult,
+  PythonDownloadStrategy,
+} from "./config";

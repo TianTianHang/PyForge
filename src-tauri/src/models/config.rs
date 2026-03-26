@@ -9,14 +9,16 @@ pub struct SourceConfig {
 }
 
 fn default_pypi_mirror() -> String {
-    "https://pypi.org/simple".to_string()
+    "https://pypi.tuna.tsinghua.edu.cn/simple".to_string()
 }
 
 impl Default for SourceConfig {
     fn default() -> Self {
         Self {
             pypi_mirror: default_pypi_mirror(),
-            python_install_mirror: None,
+            python_install_mirror: Some(
+                "https://uv.agentsmirror.com/python-build-standalone/releases/download".to_string(),
+            ),
         }
     }
 }

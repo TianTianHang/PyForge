@@ -1,5 +1,6 @@
 pub mod config;
 pub mod constants;
+pub mod data_migration;
 pub mod metadata;
 pub mod migration;
 pub mod paths;
@@ -10,6 +11,7 @@ pub mod util;
 
 pub use config::*;
 pub use constants::*;
+pub use data_migration::*;
 pub use metadata::*;
 pub use migration::*;
 pub use paths::*;

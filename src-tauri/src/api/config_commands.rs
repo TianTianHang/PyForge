@@ -1,4 +1,4 @@
-use crate::infrastructure::{init_paths, load_config, save_config, write_uv_config};
+use crate::infrastructure::{init_paths, load_config, save_config, write_uv_config, data_migration};
 use crate::models::AppConfig;
 use pathdiff::diff_paths;
 use std::collections::HashSet;
@@ -33,45 +33,34 @@ pub fn validate_data_dir(path: String) -> Result<bool, String> {
 }
 
 #[tauri::command]
-pub fn migrate_data(old_path: String, new_path: String) -> Result<(), String> {
-    let old = std::path::PathBuf::from(&old_path);
-    let new = std::path::PathBuf::from(&new_path);
-
-    if !old.exists() {
-        return Err(format!("源目录不存在: {}", old_path));
+pub async fn select_directory(app: tauri::AppHandle) -> Result<Option<String>, String> {
+    use tauri_plugin_dialog::DialogExt;
+    
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    
+    app.dialog()
+        .file()
+        .pick_folder(move |path| {
+            let _ = tx.send(path);
+        });
+    
+    match rx.await {
+        Ok(Some(path)) => Ok(Some(path.to_string())),
+        Ok(None) => Ok(None),
+        Err(_) => Err("目录选择对话框已取消".to_string()),
     }
+}
 
-    std::fs::create_dir_all(&new).map_err(|e| format!("创建目标目录失败: {}", e))?;
+#[tauri::command]
+pub async fn migrate_data(old_path: String, new_path: String) -> Result<(), String> {
+    // Enhanced migration with progress tracking and error handling
+    let result = data_migration::migrate_data(old_path, new_path).await?;
 
-    // Collect symlinks during first pass
-    let mut symlinks: Vec<(std::path::PathBuf, std::path::PathBuf)> = Vec::new();
-
-    // Pass 1: copy files/dirs, skip symlinks
-    for entry in std::fs::read_dir(&old).map_err(|e| format!("读取源目录失败: {}", e))? {
-        let entry = entry.map_err(|e| format!("读取目录项失败: {}", e))?;
-        let src = entry.path();
-        let dst = new.join(entry.file_name());
-
-        if src.is_symlink() {
-            // 检测循环符号链接
-            if has_loop_symlink(&src, &mut HashSet::new()) {
-                eprintln!("警告: 检测到循环符号链接 {:?}, 跳过", src);
-                continue;
-            }
-            symlinks.push((src.clone(), dst.clone()));
-        } else if src.is_dir() {
-            copy_dir_recursive(&src, &dst, &old, &new, &mut symlinks)?;
-        } else {
-            std::fs::copy(&src, &dst).map_err(|e| format!("复制文件失败: {}", e))?;
-        }
+    if result.success {
+        Ok(())
+    } else {
+        Err(result.error.unwrap_or("Unknown error during migration".to_string()))
     }
-
-    // Pass 2: recreate all symlinks
-    for (src, dst) in &symlinks {
-        recreate_symlink(src, dst, &old, &new)?;
-    }
-
-    Ok(())
 }
 
 fn copy_dir_recursive(
