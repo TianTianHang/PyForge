@@ -113,7 +113,7 @@ function App() {
     await deleteProject(projectId);
   };
 
-  const handleSelectProject = async (projectId: string) => {
+  const handleSelectProject = async (projectId: string | null) => {
     setCurrentProjectId(projectId);
   };
 

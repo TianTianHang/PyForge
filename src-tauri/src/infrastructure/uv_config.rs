@@ -1,12 +1,10 @@
 use std::path::PathBuf;
 
+use crate::infrastructure::get_pyforge_root;
 use crate::models::AppConfig;
 
 pub fn get_uv_config_path() -> PathBuf {
-    dirs::home_dir()
-        .expect("无法获取用户主目录")
-        .join(".pyforge")
-        .join("uv.toml")
+    get_pyforge_root().join("uv.toml")
 }
 
 pub fn write_uv_config(config: &AppConfig) -> Result<PathBuf, String> {

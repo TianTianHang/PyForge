@@ -1,21 +1,27 @@
 use std::path::{Path, PathBuf};
-use std::sync::OnceLock;
+use std::sync::RwLock;
 
-static PYFORGE_ROOT: OnceLock<PathBuf> = OnceLock::new();
+static PYFORGE_ROOT: RwLock<Option<PathBuf>> = RwLock::new(None);
 
 pub fn init_paths(data_dir: PathBuf) -> Result<(), String> {
     std::fs::create_dir_all(&data_dir).map_err(|e| format!("创建数据目录失败: {}", e))?;
-    PYFORGE_ROOT
-        .set(data_dir)
-        .map_err(|_| "路径已初始化".to_string())
+    let mut root = PYFORGE_ROOT
+        .write()
+        .map_err(|e| format!("获取路径锁失败: {}", e))?;
+    *root = Some(data_dir);
+    Ok(())
 }
 
 pub fn get_pyforge_root() -> PathBuf {
-    PYFORGE_ROOT.get().cloned().unwrap_or_else(|| {
-        dirs::home_dir()
-            .expect("无法获取用户主目录")
-            .join(".pyforge")
-    })
+    PYFORGE_ROOT
+        .read()
+        .ok()
+        .and_then(|r| r.clone())
+        .unwrap_or_else(|| {
+            dirs::home_dir()
+                .expect("无法获取用户主目录")
+                .join(".pyforge")
+        })
 }
 
 pub fn get_envs_dir() -> PathBuf {

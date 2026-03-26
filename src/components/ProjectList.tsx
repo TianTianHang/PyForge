@@ -7,6 +7,7 @@ interface ProjectListProps {
   onSelectProject: (projectId: string) => void;
   onDeleteProject: (projectId: string) => void;
   onOpenSettings: (projectId: string) => void;
+  onStartJupyter: (projectId: string) => void;
   isCurrentProject: (projectId: string) => boolean;
 }
 
@@ -15,6 +16,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
   onSelectProject,
   onDeleteProject,
   onOpenSettings,
+  onStartJupyter,
   isCurrentProject,
 }) => {
   const { loading, error } = useProject();
@@ -43,7 +45,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
       {projects.map((project) => (
         <div
           key={project.id}
@@ -62,6 +64,18 @@ const ProjectList: React.FC<ProjectListProps> = ({
           </div>
 
           <div className="flex gap-2">
+            {isCurrentProject(project.id) && (
+              <button
+                className="bg-green-500 hover:bg-green-600 text-white border-none px-3 py-1.5 text-sm rounded cursor-pointer transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onStartJupyter(project.id);
+                }}
+              >
+                启动 Jupyter
+              </button>
+            )}
+
             <button
               className="bg-slate-100 hover:bg-slate-200 text-slate-800 border-none px-3 py-1.5 text-sm rounded cursor-pointer transition-colors"
               onClick={(e) => {

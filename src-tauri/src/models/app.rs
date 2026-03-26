@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{Environment, EnvStatus, JupyterInfo, Project};
+use super::{EnvStatus, Environment, JupyterInfo, Project};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppState {

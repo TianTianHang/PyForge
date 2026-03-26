@@ -8,7 +8,7 @@ PyForge is a desktop Python development environment built with Tauri. It provide
 
 ## Tech Stack
 
-- **Frontend**: React 19 + TypeScript 5.8 + Vite 7
+- **Frontend**: React 19 + TypeScript 5.8 + Vite 7 + Tailwind CSS
 - **Backend**: Rust (Tauri 2.0)
 - **Package Manager**: pnpm
 - **Python Environment**: uv (bundled for environment management)

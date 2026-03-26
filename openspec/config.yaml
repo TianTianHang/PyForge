@@ -5,7 +5,7 @@ schema: spec-driven
 # Add your tech stack, conventions, style guides, domain knowledge, etc.
 context: |
   Tech stack: Tauri 2.0 (Rust + React/TypeScript), Python (uv, Jupyter)
-  Frontend: React 19, TypeScript 5.8, Vite 7, pnpm
+  Frontend: React 19, TypeScript 5.8, Vite 7, Tailwind CSS, pnpm
   Backend: Rust with Tauri 2.0
   Domain: Desktop Python development environment with bundled Jupyter
   Project goal: Zero-configuration Python learning environment

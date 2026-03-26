@@ -9,7 +9,7 @@ interface ProjectPanelProps {
   currentProjectId: string | null;
   onCreateProject: (name: string, envId: string) => Promise<void>;
   onDeleteProject: (projectId: string) => Promise<void>;
-  onSelectProject: (projectId: string) => void;
+  onSelectProject: (projectId: string | null) => void;
   onStartJupyter: (projectId: string) => void;
   onOpenSettings: (projectId: string) => void;
   onCreateEnvironment?: () => void;
@@ -27,7 +27,10 @@ const ProjectPanel: React.FC<ProjectPanelProps> = ({
   onCreateEnvironment,
 }) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [currentProject, setCurrentProject] = useState<Project | null>(null);
+
+  const handleClickOutside = () => {
+    onSelectProject(null);
+  };
 
   const handleCreateProject = async (name: string, envId: string) => {
     try {
@@ -39,17 +42,7 @@ const ProjectPanel: React.FC<ProjectPanelProps> = ({
   };
 
   const handleSelectProject = (projectId: string) => {
-    const project = projects.find(p => p.id === projectId);
-    if (project) {
-      setCurrentProject(project);
-      onSelectProject(projectId);
-    }
-  };
-
-  const handleStartJupyter = () => {
-    if (currentProject) {
-      onStartJupyter(currentProject.id);
-    }
+    onSelectProject(projectId);
   };
 
   const isCurrentProject = (projectId: string) => {
@@ -70,13 +63,14 @@ const ProjectPanel: React.FC<ProjectPanelProps> = ({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4" onClick={handleClickOutside}>
         {projects.length > 0 ? (
           <ProjectList
             projects={projects}
             onSelectProject={handleSelectProject}
             onDeleteProject={onDeleteProject}
             onOpenSettings={onOpenSettings}
+            onStartJupyter={onStartJupyter}
             isCurrentProject={isCurrentProject}
           />
         ) : (
@@ -91,21 +85,6 @@ const ProjectPanel: React.FC<ProjectPanelProps> = ({
           </div>
         )}
       </div>
-
-      {currentProject && (
-        <div className="flex justify-between items-center px-6 py-4 border-t border-slate-200 bg-slate-50">
-          <div>
-            <h3 className="text-base font-semibold text-slate-800 m-0">当前项目: {currentProject.name}</h3>
-            <p className="text-sm text-slate-500 mt-1">环境: {currentProject.env_id}</p>
-          </div>
-          <button
-            className="bg-green-500 hover:bg-green-600 text-white border-none px-4 py-2 text-sm rounded-lg cursor-pointer transition-colors"
-            onClick={handleStartJupyter}
-          >
-            启动 Jupyter
-          </button>
-        </div>
-      )}
 
       {showCreateDialog && (
         <CreateProjectDialog
