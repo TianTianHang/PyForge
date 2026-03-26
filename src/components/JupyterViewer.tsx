@@ -23,21 +23,21 @@ export function JupyterViewer({
           onClose={() => setShowProjectSettings(false)}
         />
       )}
-      <div className="flex items-center justify-between px-4 py-2 bg-slate-800 text-white">
+      <div className="flex items-center justify-between px-4 py-2 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)]">
         <span className="font-semibold text-base">
           PyForge {project && `- ${project.name}`}
         </span>
         <div className="flex gap-2">
           {project && (
             <button
-              className="bg-white/10 text-white border border-white/20 px-4 py-1.5 text-sm rounded cursor-pointer transition-colors hover:bg-white/20"
+              className="bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] border border-[var(--color-border)] px-4 py-1.5 text-sm rounded cursor-pointer transition-colors hover:bg-[var(--color-bg-hover)]"
               onClick={() => setShowProjectSettings(true)}
             >
               项目设置
             </button>
           )}
           <button
-            className="bg-white/10 text-white border border-white/20 px-4 py-1.5 text-sm rounded cursor-pointer transition-colors hover:bg-white/20"
+            className="bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] border border-[var(--color-border)] px-4 py-1.5 text-sm rounded cursor-pointer transition-colors hover:bg-[var(--color-bg-hover)]"
             onClick={onStop}
           >
             停止
@@ -45,8 +45,8 @@ export function JupyterViewer({
         </div>
       </div>
       {(environment || project) && (
-        <div className="bg-white/95 px-4 py-2 text-sm text-slate-500 border-b border-slate-200 backdrop-blur-sm">
-          {project && <span className="after:content-['•'] after:mx-2 after:text-slate-300">项目: {project.name}</span>}
+        <div className="bg-[var(--color-bg-primary)]/95 px-4 py-2 text-sm text-[var(--color-text-secondary)] border-b border-[var(--color-border)] backdrop-blur-sm">
+          {project && <span className="after:content-['•'] after:mx-2 after:text-[var(--color-text-tertiary)]">项目: {project.name}</span>}
           {environment && (
             <span>Python {environment.python_version} | 内核: {environment.kernel_name}</span>
           )}

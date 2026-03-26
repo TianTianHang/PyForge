@@ -12,12 +12,12 @@ export function PackageList({
   onUninstallPackage,
 }: PackageListProps) {
   if (isLoading) {
-    return <div className="flex flex-col items-center justify-center p-8 text-slate-400 text-center flex-1">正在加载包列表...</div>;
+    return <div className="flex flex-col items-center justify-center p-8 text-[var(--color-text-tertiary)] text-center flex-1">正在加载包列表...</div>;
   }
 
   if (packages.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-slate-400 text-center flex-1">
+      <div className="flex flex-col items-center justify-center p-8 text-[var(--color-text-tertiary)] text-center flex-1">
         <p>暂无已安装的包</p>
       </div>
     );
@@ -26,10 +26,10 @@ export function PackageList({
   return (
     <div className="p-4 overflow-y-auto flex-1">
       {packages.map((pkg) => (
-        <div key={pkg.name} className="flex justify-between items-center px-3 py-2.5 border border-slate-200 rounded-md mb-2 bg-slate-50">
+        <div key={pkg.name} className="flex justify-between items-center px-3 py-2.5 border border-[var(--color-border)] rounded-md mb-2 bg-[var(--color-bg-tertiary)]">
           <div className="flex items-center gap-4">
-            <span className="font-medium text-slate-800">{pkg.name}</span>
-            <span className="text-sm text-slate-500">{pkg.version}</span>
+            <span className="font-medium text-[var(--color-text-primary)]">{pkg.name}</span>
+            <span className="text-sm text-[var(--color-text-secondary)]">{pkg.version}</span>
           </div>
           <button
             type="button"

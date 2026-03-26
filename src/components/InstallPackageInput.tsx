@@ -34,14 +34,14 @@ export function InstallPackageInput({
         type="text"
         value={packageName}
         placeholder="输入包名"
-        className="flex-1 px-3 py-2 border border-slate-300 rounded-md text-base focus:outline-none focus:border-blue-500 disabled:opacity-50"
+        className="flex-1 px-3 py-2 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-md text-base focus:outline-none focus:border-[var(--color-accent-primary)] text-[var(--color-text-primary)] disabled:opacity-50"
         disabled={disabled}
         onChange={(e) => setPackageName(e.target.value)}
         onKeyDown={handleKeyDown}
       />
       <button
         type="button"
-        className="bg-blue-600 hover:bg-blue-700 text-white border-none px-4 py-2 text-base rounded-md cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-secondary)] text-white border-none px-4 py-2 text-base rounded-md cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={disabled || !packageName.trim()}
         onClick={submit}
       >

@@ -20,16 +20,16 @@ export function EnvironmentList({
       {environments.map((env) => (
         <div
           key={env.id}
-          className={`flex justify-between items-center p-4 border rounded-lg bg-white cursor-pointer transition-all hover:border-blue-500 hover:shadow-sm ${currentEnvId === env.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200'}`}
+          className={`flex justify-between items-center p-4 border rounded-lg bg-[var(--color-bg-primary)] cursor-pointer transition-all hover:border-[var(--color-accent-primary)] hover:shadow-sm ${currentEnvId === env.id ? 'border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/10' : 'border-[var(--color-border)]'}`}
           onClick={() => onSelectEnvironment(env.id)}
         >
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <div className="font-semibold text-slate-800">{env.name}</div>
-              {env.is_default && <span className="text-xs px-2 py-0.5 rounded bg-blue-500 text-white">默认</span>}
+              <div className="font-semibold text-[var(--color-text-primary)]">{env.name}</div>
+              {env.is_default && <span className="text-xs px-2 py-0.5 rounded bg-[var(--color-accent-primary)] text-white">默认</span>}
             </div>
-            <div className="text-sm text-slate-500 mb-0.5">Python {env.python_version}</div>
-            <div className="text-xs text-slate-400">
+            <div className="text-sm text-[var(--color-text-secondary)] mb-0.5">Python {env.python_version}</div>
+            <div className="text-xs text-[var(--color-text-tertiary)]">
               {new Date(env.created_at).toLocaleDateString()}
             </div>
           </div>
@@ -38,7 +38,7 @@ export function EnvironmentList({
             {currentEnvId === env.id && (
               <button
                 type="button"
-                className="bg-green-500 hover:bg-green-600 text-white border-none px-3 py-1.5 text-sm rounded cursor-pointer transition-colors"
+                className="bg-[var(--color-success)] hover:bg-[var(--color-success-muted)] text-white border-none px-3 py-1.5 text-sm rounded cursor-pointer transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   onStartJupyter();
@@ -51,7 +51,7 @@ export function EnvironmentList({
             {!env.is_default && (
               <button
                 type="button"
-                className="bg-red-500 hover:bg-red-600 text-white border-none px-3 py-1.5 text-sm rounded cursor-pointer transition-colors"
+                className="bg-[var(--color-error)] hover:bg-[var(--color-error-muted)] text-white border-none px-3 py-1.5 text-sm rounded cursor-pointer transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDeleteEnvironment(env.id);
