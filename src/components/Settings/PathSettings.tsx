@@ -107,33 +107,33 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
     <div className="space-y-6">
       {/* Data Directory Section */}
       <div>
-        <h3 className="text-lg font-medium text-slate-800 mb-4">数据目录</h3>
+        <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">数据目录</h3>
         <div className="space-y-4">
           {/* Current Directory Display */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
               当前数据目录
             </label>
-            <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg">
-              <code className="text-sm text-slate-600">{currentDataDir}</code>
+            <div className="px-3 py-2 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-lg">
+              <code className="text-sm text-[var(--color-text-secondary)]">{currentDataDir}</code>
             </div>
           </div>
 
           {/* New Directory Input */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
               新数据目录
             </label>
             <div className="flex gap-2">
               <input
                 type="text"
-                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] focus:border-transparent text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)]"
                 placeholder="输入新目录路径或点击浏览"
                 value={dataDirInput}
                 onChange={(e) => handleInputChange(e.target.value)}
               />
               <button
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg transition-colors"
+                className="px-4 py-2 bg-[var(--color-bg-tertiary)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)] border border-[var(--color-border)] rounded-lg transition-colors"
                 onClick={handleBrowseDirectory}
               >
                 浏览
@@ -142,9 +142,9 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
 
             {/* Validation Status */}
             {isValidating && (
-              <div className="mt-2 flex items-center text-sm text-slate-500">
+              <div className="mt-2 flex items-center text-sm text-[var(--color-text-tertiary)]">
                 <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-slate-500"
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-[var(--color-text-tertiary)]"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -172,7 +172,7 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
                 {validationResult.is_valid && validationResult.is_writable ? (
                   <>
                     <svg
-                      className="h-4 w-4 text-green-500 mr-2"
+                      className="h-4 w-4 text-[var(--color-success)] mr-2"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -184,12 +184,12 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    <span className="text-green-600">目录可写</span>
+                    <span className="text-[var(--color-success)]">目录可写</span>
                   </>
                 ) : (
                   <>
                     <svg
-                      className="h-4 w-4 text-red-500 mr-2"
+                      className="h-4 w-4 text-[var(--color-error)] mr-2"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -201,7 +201,7 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
                         d="M6 18L18 6M6 6l12 12"
                       />
                     </svg>
-                    <span className="text-red-600">
+                    <span className="text-[var(--color-error)]">
                       {validationResult.error || "目录不可写"}
                     </span>
                   </>
@@ -213,14 +213,14 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
           {/* Migrate Button */}
           <div>
             <button
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+              className="px-4 py-2 bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-secondary)] disabled:bg-[var(--color-text-tertiary)] disabled:cursor-not-allowed text-white rounded-lg transition-colors"
               onClick={handleMigrateClick}
               disabled={!isMigrationEnabled}
             >
               迁移数据到新目录
             </button>
             {dataDirInput && dataDirInput !== currentDataDir && !isMigrationEnabled && (
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-[var(--color-text-tertiary)]">
                 请先选择一个有效的、可写的目录
               </p>
             )}
@@ -231,27 +231,27 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
       {/* Migration Confirmation Dialog */}
       {showMigrateDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-[500px] p-6">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">
+          <div className="bg-[var(--color-bg-secondary)] rounded-xl shadow-2xl w-[500px] p-6 border border-[var(--color-border)]">
+            <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-4">
               确认数据目录迁移
             </h3>
 
             {!isMigrating ? (
               <>
-                <div className="space-y-3 text-sm text-slate-600 mb-6">
+                <div className="space-y-3 text-sm text-[var(--color-text-secondary)] mb-6">
                   <p>
                     <span className="font-medium">旧目录:</span>{" "}
-                    <code className="bg-slate-100 px-2 py-1 rounded">
+                    <code className="bg-[var(--color-bg-tertiary)] px-2 py-1 rounded">
                       {currentDataDir}
                     </code>
                   </p>
                   <p>
                     <span className="font-medium">新目录:</span>{" "}
-                    <code className="bg-slate-100 px-2 py-1 rounded">
+                    <code className="bg-[var(--color-bg-tertiary)] px-2 py-1 rounded">
                       {dataDirInput}
                     </code>
                   </p>
-                  <div className="border-t border-slate-200 pt-3 mt-3">
+                  <div className="border-t border-[var(--color-border)] pt-3 mt-3">
                     <p className="font-medium mb-2">将要迁移的内容:</p>
                     <ul className="list-disc list-inside space-y-1">
                       <li>envs/ - Python 环境</li>
@@ -262,20 +262,20 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
                       <li>配置文件</li>
                     </ul>
                   </div>
-                  <p className="text-orange-600">
+                  <p className="text-[var(--color-warning)]">
                     ⚠️ 迁移完成后应用将自动重启
                   </p>
                 </div>
 
                 <div className="flex justify-end gap-2">
                   <button
-                    className="px-4 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-100 transition-colors"
+                    className="px-4 py-2 text-[var(--color-text-secondary)] border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-bg-hover)] transition-colors"
                     onClick={() => setShowMigrateDialog(false)}
                   >
                     取消
                   </button>
                   <button
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    className="px-4 py-2 bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-secondary)] text-white rounded-lg transition-colors"
                     onClick={handleConfirmMigration}
                   >
                     确认迁移
@@ -285,7 +285,7 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
             ) : (
               <div className="text-center py-6">
                 <svg
-                  className="animate-spin h-8 w-8 text-blue-600 mx-auto mb-4"
+                  className="animate-spin h-8 w-8 text-[var(--color-accent-primary)] mx-auto mb-4"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -304,8 +304,8 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                <p className="text-slate-700 mb-2">正在迁移数据...</p>
-                <p className="text-sm text-slate-500">{migrationStep}</p>
+                <p className="text-[var(--color-text-primary)] mb-2">正在迁移数据...</p>
+                <p className="text-sm text-[var(--color-text-tertiary)]">{migrationStep}</p>
               </div>
             )}
           </div>

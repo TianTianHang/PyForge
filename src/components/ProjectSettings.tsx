@@ -121,14 +121,14 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
 
   const renderKernelsTab = () => (
     <div className="p-4">
-      <h4 className="text-base font-semibold text-slate-800 mb-3">绑定内核</h4>
+      <h4 className="text-base font-semibold text-[var(--color-text-primary)] mb-3">绑定内核</h4>
       <div className="flex flex-col gap-2">
         {boundKernels.length > 0 ? (
           boundKernels.map((kernel) => (
-            <div key={kernel.env_id} className="flex justify-between items-center p-3 border border-slate-200 rounded-lg bg-slate-50">
-              <span className="font-medium text-slate-800">{kernel.kernel_name}</span>
+            <div key={kernel.env_id} className="flex justify-between items-center p-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg-tertiary)]">
+              <span className="font-medium text-[var(--color-text-primary)]">{kernel.kernel_name}</span>
               <button
-                className="bg-amber-500 hover:bg-amber-600 text-white border-none px-3 py-1.5 text-sm rounded cursor-pointer transition-colors"
+                className="bg-[var(--color-warning)] hover:bg-[var(--color-warning-muted)] text-white border-none px-3 py-1.5 text-sm rounded cursor-pointer transition-colors"
                 onClick={() => handleUnbindKernel(kernel.env_id)}
               >
                 解绑
@@ -136,17 +136,17 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
             </div>
           ))
         ) : (
-          <p className="text-slate-400 text-center py-4">暂无绑定的内核</p>
+          <p className="text-[var(--color-text-tertiary)] text-center py-4">暂无绑定的内核</p>
         )}
       </div>
 
-      <h4 className="text-base font-semibold text-slate-800 mt-6 mb-3">添加内核</h4>
-      {kernelError && <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg border border-red-200 mb-3">{kernelError}</div>}
+      <h4 className="text-base font-semibold text-[var(--color-text-primary)] mt-6 mb-3">添加内核</h4>
+      {kernelError && <div className="bg-[var(--color-error-muted)] text-[var(--color-error)] px-4 py-3 rounded-lg border border-[var(--color-error)]/20 mb-3">{kernelError}</div>}
       <div className="flex gap-2">
         <select
           value={selectedUnboundKernel}
           onChange={(e) => setSelectedUnboundKernel(e.target.value)}
-          className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-base focus:outline-none focus:border-blue-500"
+          className="flex-1 px-3 py-2 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-lg text-base focus:outline-none focus:border-[var(--color-accent-primary)] text-[var(--color-text-primary)]"
         >
           <option value="">选择要添加的内核</option>
           {unboundKernels.map((kernel) => (
@@ -158,7 +158,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
         <button
           onClick={handleBindKernel}
           disabled={!selectedUnboundKernel || kernelLoading}
-          className="bg-blue-600 hover:bg-blue-700 text-white border-none px-4 py-2 text-sm rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-secondary)] text-white border-none px-4 py-2 text-sm rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           添加
         </button>
@@ -168,10 +168,10 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
 
   const renderEnvironmentsTab = () => (
     <div className="p-4">
-      <h4 className="text-base font-semibold text-slate-800 mb-3">在项目中创建新环境</h4>
+      <h4 className="text-base font-semibold text-[var(--color-text-primary)] mb-3">在项目中创建新环境</h4>
       <form onSubmit={handleCreateNewEnv}>
         <div className="mb-4">
-          <label className="block mb-2 font-medium text-slate-800">环境名称</label>
+          <label className="block mb-2 font-medium text-[var(--color-text-primary)]">环境名称</label>
           <input
             type="text"
             value={newEnvName}
@@ -179,16 +179,16 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
             placeholder="输入环境名称..."
             required
             disabled={isCreatingEnv}
-            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-base focus:outline-none focus:border-blue-500 disabled:opacity-50"
+            className="w-full px-3 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-lg text-base focus:outline-none focus:border-[var(--color-accent-primary)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] disabled:opacity-50"
           />
         </div>
         <div className="mb-4">
-          <label className="block mb-2 font-medium text-slate-800">Python 版本</label>
+          <label className="block mb-2 font-medium text-[var(--color-text-primary)]">Python 版本</label>
           <select
             value={selectedNewEnvPython}
             onChange={(e) => setSelectedNewEnvPython(e.target.value)}
             disabled={isCreatingEnv}
-            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-base focus:outline-none focus:border-blue-500 disabled:opacity-50"
+            className="w-full px-3 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-lg text-base focus:outline-none focus:border-[var(--color-accent-primary)] text-[var(--color-text-primary)] disabled:opacity-50"
           >
             <option value="3.12">3.12</option>
             <option value="3.11">3.11</option>
@@ -197,23 +197,23 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
           </select>
         </div>
         <div className="mb-4">
-          <label className="block mb-2 font-medium text-slate-800">安装的包（可选）</label>
+          <label className="block mb-2 font-medium text-[var(--color-text-primary)]">安装的包（可选）</label>
           <textarea
             value={newEnvPackages}
             onChange={(e) => setNewEnvPackages(e.target.value)}
             placeholder="用逗号分隔包名，如：numpy, pandas, matplotlib"
             disabled={isCreatingEnv}
-            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-base min-h-20 resize-y focus:outline-none focus:border-blue-500 disabled:opacity-50"
+            className="w-full px-3 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-lg text-base min-h-20 resize-y focus:outline-none focus:border-[var(--color-accent-primary)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] disabled:opacity-50"
           />
         </div>
 
         {createEnvError && (
-          <div className="mt-2.5 p-2.5 bg-red-50 text-red-600 border border-red-300 rounded">
+          <div className="mt-2.5 p-2.5 bg-[var(--color-error-muted)] text-[var(--color-error)] border border-[var(--color-error)]/20 rounded">
             {createEnvError}
           </div>
         )}
         {createEnvSuccess && (
-          <div className="mt-2.5 p-2.5 bg-green-50 text-green-600 border border-green-300 rounded">
+          <div className="mt-2.5 p-2.5 bg-[var(--color-success-muted)] text-[var(--color-success)] border border-[var(--color-success)]/20 rounded">
             {createEnvSuccess}
           </div>
         )}
@@ -221,7 +221,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
         <button
           type="submit"
           disabled={isCreatingEnv || !newEnvName.trim()}
-          className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white border-none px-4 py-2.5 text-sm rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-4 w-full bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-secondary)] text-white border-none px-4 py-2.5 text-sm rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isCreatingEnv ? '创建中...' : '创建环境并自动绑定'}
         </button>

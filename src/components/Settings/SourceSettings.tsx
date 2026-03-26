@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AppConfig, PythonDownloadStrategy } from "../../types";
+import { Select } from "../Select";
 
 interface SourceSettingsProps {
   config: AppConfig;
@@ -101,38 +102,36 @@ const SourceSettings: React.FC<SourceSettingsProps> = ({ config, onChange }) => 
     <div className="space-y-6">
       {/* PyPI Mirror Section */}
       <div>
-        <h3 className="text-lg font-medium text-slate-800 mb-4">PyPI 镜像源</h3>
+        <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">PyPI 镜像源</h3>
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
               选择 PyPI 镜像源
             </label>
-            <select
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            <Select
               value={currentPypiPreset}
-              onChange={(e) => handlePypiMirrorChange(e.target.value)}
-            >
-              {PYPI_MIRRORS.map((mirror) => (
-                <option key={mirror.value} value={mirror.value}>
-                  {mirror.label} ({mirror.value})
-                </option>
-              ))}
-            </select>
+              onChange={handlePypiMirrorChange}
+              options={PYPI_MIRRORS.map((mirror) => ({
+                value: mirror.value,
+                label: `${mirror.label} (${mirror.value})`
+              }))}
+              className="w-full"
+            />
           </div>
 
           {currentPypiPreset === "custom" && (
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
                 自定义 PyPI 镜像 URL
               </label>
               <input
                 type="url"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] focus:border-transparent text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)]"
                 placeholder="https://pypi.example.com/simple"
                 value={customPypiUrl}
                 onChange={(e) => handleCustomPypiUrlChange(e.target.value)}
               />
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">
                 请输入完整的 PyPI simple index URL
               </p>
             </div>
@@ -142,39 +141,39 @@ const SourceSettings: React.FC<SourceSettingsProps> = ({ config, onChange }) => 
 
       {/* Python Install Mirror Section */}
       <div>
-        <h3 className="text-lg font-medium text-slate-800 mb-4">Python 安装源</h3>
+        <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">Python 安装源</h3>
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
               选择 Python 安装源
             </label>
-            <select
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            <Select
               value={currentPythonPreset || ""}
-              onChange={(e) => handlePythonMirrorChange(e.target.value)}
-            >
-              <option value="">使用官方源</option>
-              {PYTHON_MIRRORS.map((mirror) => (
-                <option key={mirror.value} value={mirror.value}>
-                  {mirror.label} ({mirror.value})
-                </option>
-              ))}
-            </select>
+              onChange={handlePythonMirrorChange}
+              options={[
+                { value: "", label: "使用官方源" },
+                ...PYTHON_MIRRORS.map((mirror) => ({
+                  value: mirror.value,
+                  label: `${mirror.label} (${mirror.value})`
+                }))
+              ]}
+              className="w-full"
+            />
           </div>
 
           {currentPythonPreset === "custom" && (
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
                 自定义 Python 安装源 URL
               </label>
               <input
                 type="url"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] focus:border-transparent text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)]"
                 placeholder=""
                 value={customPythonUrl}
                 onChange={(e) => handleCustomPythonUrlChange(e.target.value)}
               />
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">
                 请输入 Python 发行版的下载地址
               </p>
             </div>
@@ -184,23 +183,21 @@ const SourceSettings: React.FC<SourceSettingsProps> = ({ config, onChange }) => 
 
       {/* Download Strategy Section */}
       <div>
-        <h3 className="text-lg font-medium text-slate-800 mb-4">Python 下载策略</h3>
+        <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">Python 下载策略</h3>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
             当创建新环境时
           </label>
-          <select
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          <Select
             value={config.python.download_strategy}
-            onChange={(e) => handleDownloadStrategyChange(e.target.value as PythonDownloadStrategy)}
-          >
-            {DOWNLOAD_STRATEGIES.map((strategy) => (
-              <option key={strategy.value} value={strategy.value}>
-                {strategy.label}
-              </option>
-            ))}
-          </select>
-          <p className="mt-2 text-sm text-slate-600">
+            onChange={(value) => handleDownloadStrategyChange(value as PythonDownloadStrategy)}
+            options={DOWNLOAD_STRATEGIES.map((strategy) => ({
+              value: strategy.value,
+              label: strategy.label
+            }))}
+            className="w-full"
+          />
+          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
             {config.python.download_strategy === "automatic" &&
               "自动下载并安装指定版本的 Python"}
             {config.python.download_strategy === "manual" &&

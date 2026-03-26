@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { Agentation } from "agentation";
-import "./App.css";
+import "./styles/theme.css";
 
 import { AppState, JupyterInfo, Environment, Project } from "./types";
 import { LoadingScreen } from "./components/screens/LoadingScreen";
@@ -19,6 +19,7 @@ import { useProject } from "./hooks/useProject";
 import { useSettings } from "./hooks/useSettings";
 import Settings from "./components/Settings/Settings";
 import { AppConfig } from "./types";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 function App() {
   const [appState, setAppState] = useState<AppState>("checking");
@@ -147,14 +148,6 @@ function App() {
       case "select_project":
         return (
           <div className="h-full w-full flex flex-col">
-            {/* Settings Button */}
-            <button
-              className="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg shadow-sm transition-colors z-10"
-              onClick={() => setShowSettings(true)}
-            >
-              设置
-            </button>
-
             <ProjectPanel
               projects={projects}
               environments={environments}
@@ -172,6 +165,7 @@ function App() {
               onCreateEnvironment={() => {
                 setShowCreateDialog(true);
               }}
+              onOpenAppSettings={() => setShowSettings(true)}
             />
           </div>
         );
@@ -195,55 +189,57 @@ function App() {
   };
 
   return (
-    <div className="h-full w-full flex flex-col">
-      {renderContent()}
-      {showCreateDialog && (
-        <CreateEnvironmentDialog
-          onClose={() => setShowCreateDialog(false)}
-          onCreateEnvironment={handleCreateEnvironment}
-          isLoading={false}
-        />
-      )}
-      {showCreateProjectDialog && (
-        <CreateProjectDialog
-          projects={projects}
-          environments={environments}
-          onClose={() => setShowCreateProjectDialog(false)}
-          onConfirm={handleCreateProject}
-          onCreateEnvironment={() => {
-            setShowCreateProjectDialog(false);
-            setShowCreateDialog(true);
+    <ThemeProvider>
+      <div className="h-full w-full flex flex-col">
+        {renderContent()}
+        {showCreateDialog && (
+          <CreateEnvironmentDialog
+            onClose={() => setShowCreateDialog(false)}
+            onCreateEnvironment={handleCreateEnvironment}
+            isLoading={false}
+          />
+        )}
+        {showCreateProjectDialog && (
+          <CreateProjectDialog
+            projects={projects}
+            environments={environments}
+            onClose={() => setShowCreateProjectDialog(false)}
+            onConfirm={handleCreateProject}
+            onCreateEnvironment={() => {
+              setShowCreateProjectDialog(false);
+              setShowCreateDialog(true);
+            }}
+          />
+        )}
+        {selectedProject && (
+          <ProjectSettings
+            project={selectedProject}
+            onClose={() => setSelectedProject(null)}
+            onDeleteProject={handleDeleteProject}
+            onCreateEnvironment={createEnvironment}
+          />
+        )}
+        {showSettings && settingsConfig && (
+          <Settings
+            onClose={() => setShowSettings(false)}
+            initialConfig={settingsConfig}
+            onSave={async (config) => {
+              await updateConfig(config);
+            }}
+            onReset={async () => {
+              // TODO: Get default config from backend
+              return settingsConfig;
+            }}
+          />
+        )}
+        {import.meta.env.DEV && <Agentation
+          endpoint="http://localhost:4747"
+          onSessionCreated={(sessionId) => {
+            console.log("Session started:", sessionId);
           }}
-        />
-      )}
-      {selectedProject && (
-        <ProjectSettings
-          project={selectedProject}
-          onClose={() => setSelectedProject(null)}
-          onDeleteProject={handleDeleteProject}
-          onCreateEnvironment={createEnvironment}
-        />
-      )}
-      {showSettings && settingsConfig && (
-        <Settings
-          onClose={() => setShowSettings(false)}
-          initialConfig={settingsConfig}
-          onSave={async (config) => {
-            await updateConfig(config);
-          }}
-          onReset={async () => {
-            // TODO: Get default config from backend
-            return settingsConfig;
-          }}
-        />
-      )}
-      {import.meta.env.DEV && <Agentation
-        endpoint="http://localhost:4747"
-        onSessionCreated={(sessionId) => {
-          console.log("Session started:", sessionId);
-        }}
-      />}
-    </div>
+        />}
+      </div>
+    </ThemeProvider>
   );
 }
 
