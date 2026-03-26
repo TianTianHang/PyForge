@@ -84,15 +84,15 @@ export function CreateEnvironmentDialog({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-      <div className="bg-[var(--color-bg-secondary)] rounded-xl shadow-2xl w-[90%] max-w-md max-h-[90vh] overflow-y-auto border border-[var(--color-border)]">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in-fast">
+      <div className="bg-[var(--color-bg-secondary)] rounded-xl shadow-2xl w-[90%] max-w-md max-h-[90vh] overflow-y-auto border border-[var(--color-border)] animate-dialog-enter">
         <div className="flex justify-between items-center px-6 py-5 border-b border-[var(--color-border)]">
           <h2 className="text-xl font-semibold text-[var(--color-text-primary)] m-0">创建新环境</h2>
           <button
-            type="button"
-            className="bg-none border-none text-2xl text-[var(--color-text-tertiary)] w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer transition-all hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-secondary)]"
-            onClick={onClose}
-          >
+              type="button"
+              className="bg-none border-none text-2xl text-[var(--color-text-tertiary)] w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer transition-all duration-200 hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-secondary)] press-scale"
+              onClick={onClose}
+            >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -117,7 +117,7 @@ export function CreateEnvironmentDialog({
             <div className="mb-6">
               <label className="block mb-2 font-medium text-[var(--color-text-primary)]">选择模板（可选）</label>
               <div className="grid grid-cols-1 gap-2">
-                {templates.map((template) => {
+                {templates.map((template, index) => {
                   const isSelected = selectedTemplateId === template.id;
                   return (
                     <button
@@ -125,13 +125,14 @@ export function CreateEnvironmentDialog({
                       type="button"
                       onClick={() => handleTemplateSelect(template)}
                       className={`
-                        flex items-center gap-3 p-3 rounded-lg border text-left transition-all duration-150
+                        flex items-center gap-3 p-3 rounded-lg border text-left transition-all duration-200 animate-fade-in-fast
                         ${isSelected
                           ? "border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/5"
                           : "border-[var(--color-border)] hover:border-[var(--color-accent-primary)]/50 hover:bg-[var(--color-bg-tertiary)]"
                         }
-                        cursor-pointer
+                        cursor-pointer press-scale
                       `}
+                      style={{ animationDelay: `${index * 40}ms` }}
                     >
                       <span className="text-2xl flex-shrink-0">{template.icon}</span>
                       <div className="flex-1 min-w-0">
@@ -196,14 +197,14 @@ export function CreateEnvironmentDialog({
           <div className="flex justify-end gap-3 mt-8">
             <button
               type="button"
-              className="bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)] border border-[var(--color-border)] px-6 py-2.5 text-base rounded-lg cursor-pointer transition-all hover:bg-[var(--color-bg-hover)] hover:border-[var(--color-border-hover)]"
+              className="bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)] border border-[var(--color-border)] px-6 py-2.5 text-base rounded-lg cursor-pointer transition-all duration-200 hover:bg-[var(--color-bg-hover)] hover:border-[var(--color-border-hover)] press-scale"
               onClick={onClose}
             >
               取消
             </button>
             <button
               type="submit"
-              className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-secondary)] text-white border-none px-8 py-2.5 text-base rounded-lg cursor-pointer transition-all shadow-md shadow-[var(--color-accent-glow)] hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex items-center gap-2"
+              className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-secondary)] text-white border-none px-8 py-2.5 text-base rounded-lg cursor-pointer transition-all duration-200 shadow-md shadow-[var(--color-accent-glow)] hover:shadow-lg hover-glow disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex items-center gap-2 press-scale"
               disabled={isLoading || !name.trim()}
             >
               {isLoading ? (

@@ -195,56 +195,64 @@ function App() {
   };
 
   const renderContent = () => {
-    switch (appState) {
-      case "checking":
-        return <LoadingScreen message="正在检查环境..." />;
+    const content = (() => {
+      switch (appState) {
+        case "checking":
+          return <LoadingScreen message="正在检查环境..." />;
 
-      case "initializing":
-        return <ProgressScreen message={progressMessage} />;
+        case "initializing":
+          return <ProgressScreen message={progressMessage} />;
 
-      case "select_env":
-      case "select_project":
-        return (
-          <div className="h-full w-full flex flex-col">
-            <ProjectPanel
-              projects={projects}
-              environments={environments}
-              currentProjectId={currentProjectId}
-              onCreateProject={handleCreateProject}
-              onDeleteProject={handleDeleteProject}
-              onSelectProject={handleSelectProject}
-              onStartJupyter={handleStartJupyter}
-              onOpenSettings={(projectId) => {
-                const project = projects.find(p => p.id === projectId);
-                if (project) {
-                  setSelectedProject(project);
-                }
-              }}
-              onCreateEnvironment={() => {
-                setShowCreateDialog(true);
-              }}
-              onOpenAppSettings={() => setShowSettings(true)}
-              startingProjectId={startingProjectId}
+        case "select_env":
+        case "select_project":
+          return (
+            <div className="h-full w-full flex flex-col">
+              <ProjectPanel
+                projects={projects}
+                environments={environments}
+                currentProjectId={currentProjectId}
+                onCreateProject={handleCreateProject}
+                onDeleteProject={handleDeleteProject}
+                onSelectProject={handleSelectProject}
+                onStartJupyter={handleStartJupyter}
+                onOpenSettings={(projectId) => {
+                  const project = projects.find(p => p.id === projectId);
+                  if (project) {
+                    setSelectedProject(project);
+                  }
+                }}
+                onCreateEnvironment={() => {
+                  setShowCreateDialog(true);
+                }}
+                onOpenAppSettings={() => setShowSettings(true)}
+                startingProjectId={startingProjectId}
+              />
+            </div>
+          );
+
+        case "starting_jupyter":
+          return <LoadingScreen message={progressMessage} />;
+
+        case "ready":
+          return jupyterInfo ? (
+            <JupyterViewer
+              url={jupyterInfo.url}
+              onStop={stopJupyter}
+              environment={environments.find((env) => env.id === currentEnvId) ?? null}
+              project={projects.find((p) => p.id === currentProjectId) ?? null}
             />
-          </div>
-        );
+          ) : null;
 
-      case "starting_jupyter":
-        return <LoadingScreen message={progressMessage} />;
+        case "error":
+          return <ErrorScreen error={error} onRetry={retry} />;
+      }
+    })();
 
-      case "ready":
-        return jupyterInfo ? (
-          <JupyterViewer
-            url={jupyterInfo.url}
-            onStop={stopJupyter}
-            environment={environments.find((env) => env.id === currentEnvId) ?? null}
-            project={projects.find((p) => p.id === currentProjectId) ?? null}
-          />
-        ) : null;
-
-      case "error":
-        return <ErrorScreen error={error} onRetry={retry} />;
-    }
+    return (
+      <div key={appState} className="h-full w-full animate-fade-in">
+        {content}
+      </div>
+    );
   };
 
   return (

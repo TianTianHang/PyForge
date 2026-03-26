@@ -92,8 +92,8 @@ const Settings: React.FC<SettingsProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-      <div className="bg-[var(--color-bg-secondary)] rounded-xl shadow-2xl w-[800px] max-h-[80vh] flex flex-col border border-[var(--color-border)]">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in-fast">
+      <div className="bg-[var(--color-bg-secondary)] rounded-xl shadow-2xl w-[800px] max-h-[80vh] flex flex-col border border-[var(--color-border)] animate-dialog-enter">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)]">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--color-accent-primary)] to-[var(--color-accent-secondary)] flex items-center justify-center">
@@ -107,7 +107,7 @@ const Settings: React.FC<SettingsProps> = ({
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <button
-              className="text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer transition-all hover:bg-[var(--color-bg-tertiary)] border-none bg-transparent"
+              className="text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer transition-all duration-200 hover:bg-[var(--color-bg-tertiary)] border-none bg-transparent press-scale"
               onClick={onClose}
             >
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -121,7 +121,7 @@ const Settings: React.FC<SettingsProps> = ({
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all ${
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all duration-200 press-scale ${
                 activeTab === tab.id
                   ? "border-[var(--color-accent-primary)] text-[var(--color-accent-primary)]"
                   : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
@@ -164,13 +164,13 @@ const Settings: React.FC<SettingsProps> = ({
           {!saveSuccess && !hasChanges && <span />}
           <div className="flex gap-2">
             <button
-              className="px-4 py-2 text-sm text-[var(--color-text-secondary)] border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-bg-hover)] transition-all"
+              className="px-4 py-2 text-sm text-[var(--color-text-secondary)] border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-bg-hover)] transition-all duration-200 press-scale"
               onClick={handleReset}
             >
               重置
             </button>
             <button
-              className="px-4 py-2 text-sm text-white bg-[var(--color-accent-primary)] rounded-lg hover:bg-[var(--color-accent-secondary)] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md shadow-[var(--color-accent-glow)] hover:shadow-lg flex items-center gap-2"
+              className="px-4 py-2 text-sm text-white bg-[var(--color-accent-primary)] rounded-lg hover:bg-[var(--color-accent-secondary)] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-[var(--color-accent-glow)] hover:shadow-lg hover-glow flex items-center gap-2 press-scale"
               onClick={handleSave}
               disabled={!hasChanges || isSaving}
             >

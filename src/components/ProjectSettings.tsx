@@ -128,7 +128,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
             <div key={kernel.env_id} className="flex justify-between items-center p-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg-tertiary)]">
               <span className="font-medium text-[var(--color-text-primary)]">{kernel.kernel_name}</span>
               <button
-                className="bg-[var(--color-warning)] hover:bg-[var(--color-warning-muted)] text-white border-none px-3 py-1.5 text-sm rounded cursor-pointer transition-colors"
+                className="bg-[var(--color-warning)] hover:bg-[var(--color-warning)]/80 text-white border-none px-3 py-1.5 text-sm rounded cursor-pointer transition-all duration-200 press-scale"
                 onClick={() => handleUnbindKernel(kernel.env_id)}
               >
                 解绑
@@ -146,11 +146,11 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
         <select
           value={selectedUnboundKernel}
           onChange={(e) => setSelectedUnboundKernel(e.target.value)}
-          className="flex-1 px-3 py-2 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-lg text-base focus:outline-none focus:border-[var(--color-accent-primary)] text-[var(--color-text-primary)]"
+          className="flex-1 px-3 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-lg text-base focus:outline-none focus:border-[var(--color-accent-primary)] text-[var(--color-text-primary)] appearance-none"
         >
-          <option value="">选择要添加的内核</option>
+          <option value="" className="bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">选择要添加的内核</option>
           {unboundKernels.map((kernel) => (
-            <option key={kernel.env_id} value={kernel.env_id}>
+            <option key={kernel.env_id} value={kernel.env_id} className="bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
               {kernel.kernel_name}
             </option>
           ))}
@@ -158,7 +158,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
         <button
           onClick={handleBindKernel}
           disabled={!selectedUnboundKernel || kernelLoading}
-          className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-secondary)] text-white border-none px-4 py-2 text-sm rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-secondary)] text-white border-none px-4 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 press-scale hover-glow disabled:opacity-50 disabled:cursor-not-allowed"
         >
           添加
         </button>
@@ -188,12 +188,12 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
             value={selectedNewEnvPython}
             onChange={(e) => setSelectedNewEnvPython(e.target.value)}
             disabled={isCreatingEnv}
-            className="w-full px-3 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-lg text-base focus:outline-none focus:border-[var(--color-accent-primary)] text-[var(--color-text-primary)] disabled:opacity-50"
+            className="w-full px-3 py-2.5 bg-[var(--color-bg-primary)] border border-[var(--color-border)] rounded-lg text-base focus:outline-none focus:border-[var(--color-accent-primary)] text-[var(--color-text-primary)] appearance-none disabled:opacity-50"
           >
-            <option value="3.12">3.12</option>
-            <option value="3.11">3.11</option>
-            <option value="3.10">3.10</option>
-            <option value="3.9">3.9</option>
+            <option value="3.12" className="bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">3.12</option>
+            <option value="3.11" className="bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">3.11</option>
+            <option value="3.10" className="bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">3.10</option>
+            <option value="3.9" className="bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">3.9</option>
           </select>
         </div>
         <div className="mb-4">
@@ -221,7 +221,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
         <button
           type="submit"
           disabled={isCreatingEnv || !newEnvName.trim()}
-          className="mt-4 w-full bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-secondary)] text-white border-none px-4 py-2.5 text-sm rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-4 w-full bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-secondary)] text-white border-none px-4 py-2.5 text-sm rounded-lg cursor-pointer transition-all duration-200 press-scale hover-glow disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isCreatingEnv ? '创建中...' : '创建环境并自动绑定'}
         </button>
@@ -231,17 +231,17 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
 
   const renderDeleteTab = () => (
     <div className="p-4">
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-        <h4 className="text-base font-semibold text-red-600 mb-2">警告</h4>
-        <p className="text-slate-600 mb-2">删除项目将永久删除项目及其所有内容，包括：</p>
-        <ul className="list-disc list-inside text-slate-600 mb-2">
+      <div className="bg-[var(--color-error-muted)] border border-[var(--color-error)]/20 rounded-lg p-4 mb-4">
+        <h4 className="text-base font-semibold text-[var(--color-error)] mb-2">警告</h4>
+        <p className="text-[var(--color-text-secondary)] mb-2">删除项目将永久删除项目及其所有内容，包括：</p>
+        <ul className="list-disc list-inside text-[var(--color-text-secondary)] mb-2">
           <li>项目目录下的所有文件</li>
           <li>该项目的内核绑定</li>
         </ul>
-        <p className="text-slate-600">此操作<strong>无法撤销</strong>。</p>
+        <p className="text-[var(--color-text-secondary)]">此操作<strong>无法撤销</strong>。</p>
       </div>
       <button
-        className="w-full bg-red-500 hover:bg-red-600 text-white border-none px-4 py-2.5 text-sm rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-[var(--color-error)] hover:bg-[var(--color-error)]/80 text-white border-none px-4 py-2.5 text-sm rounded-lg cursor-pointer transition-all duration-200 press-scale disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={handleDeleteProject}
         disabled={project.is_default}
       >
@@ -251,12 +251,12 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-lg w-[90%] max-w-lg max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center px-6 py-4 border-b border-slate-200">
-          <h3 className="text-xl font-semibold text-slate-800 m-0">项目设置</h3>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in-fast" onClick={onClose}>
+      <div className="bg-[var(--color-bg-primary)] rounded-xl shadow-lg w-[90%] max-w-lg max-h-[90vh] overflow-hidden flex flex-col animate-dialog-enter" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center px-6 py-4 border-b border-[var(--color-border)]">
+          <h3 className="text-xl font-semibold text-[var(--color-text-primary)] m-0">项目设置</h3>
           <button
-            className="bg-none border-none text-2xl text-slate-400 w-8 h-8 flex items-center justify-center rounded-full cursor-pointer transition-colors hover:bg-slate-100 hover:text-slate-600"
+            className="bg-none border-none text-2xl text-[var(--color-text-tertiary)] w-8 h-8 flex items-center justify-center rounded-full cursor-pointer transition-all duration-200 hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-primary)] press-scale"
             onClick={onClose}
           >
             ×
@@ -264,21 +264,21 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({
         </div>
 
         <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="flex border-b border-slate-200">
+          <div className="flex border-b border-[var(--color-border)]">
             <button
-              className={`flex-1 px-4 py-3 text-sm font-medium border-none cursor-pointer transition-colors ${tab === 'kernels' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-slate-500 bg-white hover:bg-slate-50'}`}
+              className={`flex-1 px-4 py-3 text-sm font-medium border-none cursor-pointer transition-all duration-200 press-scale ${tab === 'kernels' ? 'text-[var(--color-accent-primary)] border-b-2 border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/10' : 'text-[var(--color-text-secondary)] bg-[var(--color-bg-primary)] hover:bg-[var(--color-bg-tertiary)]'}`}
               onClick={() => setTab('kernels')}
             >
               内核管理
             </button>
             <button
-              className={`flex-1 px-4 py-3 text-sm font-medium border-none cursor-pointer transition-colors ${tab === 'environments' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-slate-500 bg-white hover:bg-slate-50'}`}
+              className={`flex-1 px-4 py-3 text-sm font-medium border-none cursor-pointer transition-all duration-200 press-scale ${tab === 'environments' ? 'text-[var(--color-accent-primary)] border-b-2 border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/10' : 'text-[var(--color-text-secondary)] bg-[var(--color-bg-primary)] hover:bg-[var(--color-bg-tertiary)]'}`}
               onClick={() => setTab('environments')}
             >
               环境管理
             </button>
             <button
-              className={`flex-1 px-4 py-3 text-sm font-medium border-none cursor-pointer transition-colors ${tab === 'delete' ? 'text-red-600 border-b-2 border-red-600 bg-red-50' : 'text-slate-500 bg-white hover:bg-slate-50'}`}
+              className={`flex-1 px-4 py-3 text-sm font-medium border-none cursor-pointer transition-all duration-200 press-scale ${tab === 'delete' ? 'text-[var(--color-error)] border-b-2 border-[var(--color-error)] bg-[var(--color-error)]/10' : 'text-[var(--color-text-secondary)] bg-[var(--color-bg-primary)] hover:bg-[var(--color-bg-tertiary)]'}`}
               onClick={() => setTab('delete')}
             >
               删除项目

@@ -71,17 +71,18 @@ const ProjectList: React.FC<ProjectListProps> = ({
 
   return (
     <div className="flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
-      {projects.map((project) => {
+      {projects.map((project, index) => {
         const isActive = isCurrentProject(project.id);
 
         return (
           <div
             key={project.id}
-            className={`group flex justify-between items-center p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
+            className={`group flex justify-between items-center p-4 rounded-xl border cursor-pointer transition-all duration-200 animate-slide-up hover-lift ${
               isActive
                 ? 'bg-[var(--color-bg-elevated)] border-[var(--color-border-hover)] shadow-lg'
                 : 'bg-[var(--color-bg-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg-tertiary)] hover:border-[var(--color-border-hover)]'
             }`}
+            style={{ animationDelay: `${index * 50}ms` }}
             onClick={() => onOpenSettings(project.id)}
           >
             <div className="flex-1 min-w-0">
@@ -124,8 +125,8 @@ const ProjectList: React.FC<ProjectListProps> = ({
                 className={`${
                   startingProjectId === project.id
                     ? 'bg-[var(--color-text-tertiary)] cursor-not-allowed opacity-60'
-                    : 'bg-[var(--color-success)] hover:bg-[var(--color-success)]/80 cursor-pointer shadow-md'
-                } text-white border-none px-3 py-1.5 text-sm rounded-lg transition-all flex items-center gap-1.5`}
+                    : 'bg-[var(--color-success)] hover:bg-[var(--color-success)]/80 cursor-pointer shadow-md hover:shadow-lg'
+                } text-white border-none px-3 py-1.5 text-sm rounded-lg transition-all duration-200 flex items-center gap-1.5 press-scale`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onStartJupyter(project.id);
@@ -148,7 +149,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
               </button>
 
               <button
-                className="bg-[var(--color-bg-tertiary)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:border-[var(--color-border-hover)] px-3 py-1.5 text-sm rounded-lg cursor-pointer transition-all"
+                className="bg-[var(--color-bg-tertiary)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:border-[var(--color-border-hover)] px-3 py-1.5 text-sm rounded-lg cursor-pointer transition-all duration-200 press-scale"
                 onClick={(e) => {
                   e.stopPropagation();
                   onOpenSettings(project.id);
@@ -161,7 +162,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
               </button>
 
               <button
-                className="bg-[var(--color-error-muted)] hover:bg-[var(--color-error)] text-[var(--color-error)] hover:text-white border border-[var(--color-error)]/20 hover:border-[var(--color-error)] px-3 py-1.5 text-sm rounded-lg cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-error-muted)] disabled:hover:text-[var(--color-error)]"
+                className="bg-[var(--color-error-muted)] hover:bg-[var(--color-error)] text-[var(--color-error)] hover:text-white border border-[var(--color-error)]/20 hover:border-[var(--color-error)] px-3 py-1.5 text-sm rounded-lg cursor-pointer transition-all duration-200 press-scale disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-error-muted)] disabled:hover:text-[var(--color-error)]"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleDelete(project.id);

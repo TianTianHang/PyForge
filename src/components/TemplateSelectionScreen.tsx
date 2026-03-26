@@ -75,15 +75,15 @@ export function TemplateSelectionScreen({ onComplete, onError }: TemplateSelecti
   return (
     <div className="flex items-center justify-center h-full p-8">
       <div className="flex flex-col items-center gap-8 max-w-2xl w-full">
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-2 animate-slide-down">
           <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
             欢迎使用 PyForge
           </h1>
           <p className="text-[var(--color-text-secondary)]">选择一个环境模板开始：</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
-          {templates.map((template) => {
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full justify-items-center">
+          {templates.map((template, index) => {
             const isSelected = selectedId === template.id;
             return (
               <button
@@ -97,7 +97,7 @@ export function TemplateSelectionScreen({ onComplete, onError }: TemplateSelecti
                   }
                 }}
                 className={`
-                  p-5 rounded-xl border-2 text-left transition-all duration-200 max-w-[400px] w-full
+                  p-5 rounded-xl border-2 text-left transition-all duration-200 max-w-[400px] w-full animate-slide-up press-scale
                   ${isSelected
                     ? "border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/5 shadow-md shadow-[var(--color-accent-glow)]/50"
                     : "border-[var(--color-border)] hover:border-[var(--color-accent-primary)] hover:bg-[var(--color-bg-tertiary)]"
@@ -105,6 +105,7 @@ export function TemplateSelectionScreen({ onComplete, onError }: TemplateSelecti
                   ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
                   focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] focus:ring-offset-2 focus:ring-offset-[var(--color-bg-primary)]
                 `}
+                style={{ animationDelay: `${index * 60}ms` }}
               >
                 <div className="flex items-start gap-4">
                   <span className="text-4xl flex-shrink-0">{template.icon}</span>
@@ -161,13 +162,14 @@ export function TemplateSelectionScreen({ onComplete, onError }: TemplateSelecti
           disabled={!selectedId || loading}
           onClick={handleCreate}
           className={`
-            px-8 py-3 rounded-lg font-medium text-base transition-all duration-200
+            px-8 py-3 rounded-lg font-medium text-base transition-all duration-200 animate-fade-in press-scale
             ${
               selectedId && !loading
-                ? "bg-[var(--color-accent-primary)] text-white hover:bg-[var(--color-accent-secondary)] shadow-lg shadow-[var(--color-accent-glow)]/50"
+                ? "bg-[var(--color-accent-primary)] text-white hover:bg-[var(--color-accent-secondary)] shadow-lg shadow-[var(--color-accent-glow)]/50 hover-glow"
                 : "bg-[var(--color-bg-tertiary)] text-[var(--color-text-muted)] cursor-not-allowed"
             }
           `}
+          style={{ animationDelay: '200ms' }}
         >
           {loading ? "创建中..." : "创建并开始"}
         </button>
