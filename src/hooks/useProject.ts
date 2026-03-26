@@ -8,7 +8,7 @@ interface UseProjectHook {
   error: string | null;
 
   createProject: (name: string, envId: string) => Promise<void>;
-  listProjects: () => Promise<void>;
+  listProjects: () => Promise<Project[]>;
   deleteProject: (projectId: string) => Promise<void>;
 }
 
@@ -34,12 +34,13 @@ export const useProject = (): UseProjectHook => {
     }
   }, []);
 
-  const listProjects = useCallback(async () => {
+  const listProjects = useCallback(async (): Promise<Project[]> => {
     setError(null);
 
     try {
       const response = await invoke<Project[]>('list_projects_command');
       setProjects(response);
+      return response;
     } catch (err) {
       setError(err instanceof Error ? err.message : '获取项目列表失败');
       throw err;

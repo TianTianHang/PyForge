@@ -22,43 +22,31 @@ The system SHALL provide a direct "Launch Jupyter" button on each project card, 
 - **AND** user cannot click launch button again until startup completes or fails
 
 ### Requirement: Reduced click count to Jupyter
-The system SHALL minimize the number of user interactions required to go from application launch to JupyterLab interface.
 
-#### Scenario: First-time user path: 2 clicks to Jupyter
+#### Scenario: First-time user path: 1 click to Jupyter
 - **WHEN** first-time user opens application with welcome screen
-- **THEN** user can reach Jupyter in 2 clicks: select template → click "create and start"
-- **AND** system creates project and launches Jupyter without intermediate steps
+- **THEN** user SHALL reach Jupyter in 1 click: select template → click "create and start"
+- **AND** system SHALL automatically create a default project after environment creation
+- **AND** system SHALL automatically launch Jupyter without any intermediate steps
 
 #### Scenario: Returning user path: 1 click to Jupyter
 - **WHEN** returning user opens application with existing projects
 - **THEN** user can reach Jupyter in 1 click: click "Launch Jupyter" on project card
 - **AND** system bypasses project selection step
 
-#### Scenario: No intermediate confirmation dialogs
-- **WHEN** user clicks launch button or "create and start"
-- **THEN** system proceeds directly to action without confirmation dialog
-- **AND** system shows progress indicator instead of modal confirmation
-
 ### Requirement: Optimized empty state with quick-start
-The system SHALL replace blank empty state with actionable quick-start options that guide users to create their first project.
 
-#### Scenario: Empty state shows welcome guide instead of blank
-- **WHEN** project list is empty
-- **THEN** system displays welcome guide with application branding
-- **AND** system shows 3-4 template cards for immediate project creation
-- **AND** system does not display empty "no projects" message without action
-
-#### Scenario: Quick-start cards link to creation
-- **WHEN** user views empty state welcome guide
-- **THEN** each template card is clickable
-- **AND** clicking a card opens simplified creation dialog with that template pre-selected
-- **AND** project name input is auto-focused for immediate entry
+#### Scenario: Empty state shows simple guidance instead of template cards
+- **WHEN** project list is empty (user has deleted all projects)
+- **THEN** system SHALL display a simple empty state with a folder icon
+- **AND** system SHALL display text "还没有项目"
+- **AND** system SHALL display guidance text directing user to the "新建项目" button in the header
+- **AND** system SHALL NOT display template cards in the empty state
 
 #### Scenario: Empty state provides clear next step
 - **WHEN** user sees empty state
-- **THEN** system explicitly shows "create your first project" call-to-action
-- **AND** system avoids generic "no projects" message
-- **AND** primary action button is visually prominent
+- **THEN** system explicitly references the "新建项目" button as the next action
+- **AND** system avoids displaying template selection options
 
 ### Requirement: Progress feedback during Jupyter startup
 The system SHALL provide clear visual feedback during Jupyter server startup to assure user that action is in progress.

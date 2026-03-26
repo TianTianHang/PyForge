@@ -54,7 +54,6 @@ const ProjectPanel: React.FC<ProjectPanelProps> = ({
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [userMode, setUserMode] = useState<UserMode>('first-time');
   const [hasVisitedBefore, setHasVisitedBefore] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
   useEffect(() => {
     const visited = localStorage.getItem(FIRST_TIME_VISIT_KEY) === 'true';
@@ -143,12 +142,7 @@ const ProjectPanel: React.FC<ProjectPanelProps> = ({
             startingProjectId={startingProjectId}
           />
         ) : (
-          <WelcomeGuide
-            onSelectTemplate={(templateId) => {
-              setSelectedTemplate(templateId);
-              setShowCreateDialog(true);
-            }}
-          />
+          <WelcomeGuide />
         )}
       </div>
 
@@ -158,12 +152,9 @@ const ProjectPanel: React.FC<ProjectPanelProps> = ({
           environments={environments}
           onClose={() => {
             setShowCreateDialog(false);
-            setSelectedTemplate(null);
           }}
           onConfirm={handleCreateProject}
           onCreateEnvironment={onCreateEnvironment}
-          userMode={userMode}
-          preselectedTemplate={selectedTemplate}
         />
       )}
     </div>

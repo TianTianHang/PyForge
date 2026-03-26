@@ -1,5 +1,7 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { Select } from "./Select";
+import type { Template } from "../types";
 
 interface CreateEnvironmentDialogProps {
   onClose: () => void;
@@ -9,13 +11,22 @@ interface CreateEnvironmentDialogProps {
 
 const PYTHON_VERSIONS = ["3.12", "3.11", "3.10", "3.9"];
 
-const DEFAULT_PACKAGES = [
+const FALLBACK_PACKAGES = [
   "numpy",
   "pandas",
   "matplotlib",
   "ipykernel",
   "jupyterlab",
 ];
+
+function parsePackageName(dep: string): string {
+  return dep.split(">=")[0].split("<=")[0].split("==")[0].split("~=")[0].split(">")[0].split("<")[0].split("!=")[0].split("[")[0].trim();
+}
+
+function parsePythonVersion(requires: string): string | null {
+  const match = requires.match(/(3\.\d+)/);
+  return match ? match[1] : null;
+}
 
 export function CreateEnvironmentDialog({
   onClose,
@@ -25,6 +36,26 @@ export function CreateEnvironmentDialog({
   const [name, setName] = useState("");
   const [pythonVersion, setPythonVersion] = useState(PYTHON_VERSIONS[0]);
   const [customPackages, setCustomPackages] = useState("");
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+
+  useEffect(() => {
+    invoke<Template[]>("list_templates")
+      .then(setTemplates)
+      .catch(() => setTemplates([]));
+  }, []);
+
+  const handleTemplateSelect = (template: Template) => {
+    if (selectedTemplateId === template.id) {
+      setSelectedTemplateId(null);
+      return;
+    }
+    setSelectedTemplateId(template.id);
+    const ver = parsePythonVersion(template.requires_python);
+    if (ver && PYTHON_VERSIONS.includes(ver)) {
+      setPythonVersion(ver);
+    }
+  };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,7 +64,12 @@ export function CreateEnvironmentDialog({
       return;
     }
 
-    const packageList = [...DEFAULT_PACKAGES];
+    const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
+    const basePackages = selectedTemplate
+      ? selectedTemplate.dependencies.map(parsePackageName)
+      : [...FALLBACK_PACKAGES];
+
+    const packageList = [...basePackages];
 
     if (customPackages.trim()) {
       customPackages.split(",").forEach((pkg) => {
@@ -77,6 +113,47 @@ export function CreateEnvironmentDialog({
             />
           </div>
 
+          {templates.length > 0 && (
+            <div className="mb-6">
+              <label className="block mb-2 font-medium text-[var(--color-text-primary)]">选择模板（可选）</label>
+              <div className="grid grid-cols-1 gap-2">
+                {templates.map((template) => {
+                  const isSelected = selectedTemplateId === template.id;
+                  return (
+                    <button
+                      key={template.id}
+                      type="button"
+                      onClick={() => handleTemplateSelect(template)}
+                      className={`
+                        flex items-center gap-3 p-3 rounded-lg border text-left transition-all duration-150
+                        ${isSelected
+                          ? "border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/5"
+                          : "border-[var(--color-border)] hover:border-[var(--color-accent-primary)]/50 hover:bg-[var(--color-bg-tertiary)]"
+                        }
+                        cursor-pointer
+                      `}
+                    >
+                      <span className="text-2xl flex-shrink-0">{template.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className={`font-medium text-sm ${isSelected ? "text-[var(--color-accent-primary)]" : "text-[var(--color-text-primary)]"}`}>
+                          {template.display_name}
+                        </div>
+                        <div className="text-xs text-[var(--color-text-tertiary)] truncate">
+                          {template.description}
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <svg className="w-5 h-5 text-[var(--color-accent-primary)] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="mb-6">
             <label htmlFor="python-version" className="block mb-2 font-medium text-[var(--color-text-primary)]">Python 版本</label>
             <Select
@@ -90,9 +167,14 @@ export function CreateEnvironmentDialog({
           </div>
 
           <div className="mb-6">
-            <label className="block mb-2 font-medium text-[var(--color-text-primary)]">默认预装包</label>
+            <label className="block mb-2 font-medium text-[var(--color-text-primary)]">
+              {selectedTemplateId ? "模板预装包" : "默认预装包"}
+            </label>
             <div className="flex flex-wrap gap-2">
-              {DEFAULT_PACKAGES.map((pkg) => (
+              {(selectedTemplateId
+                ? templates.find((t) => t.id === selectedTemplateId)!.dependencies.map(parsePackageName)
+                : FALLBACK_PACKAGES
+              ).map((pkg) => (
                 <span key={pkg} className="bg-[var(--color-accent-primary)]/10 text-[var(--color-accent-primary)] px-3 py-1.5 rounded-full text-sm border border-[var(--color-accent-primary)]/20">
                   {pkg}
                 </span>

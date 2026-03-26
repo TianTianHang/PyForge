@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/core";
 import { Agentation } from "agentation";
 import "./styles/theme.css";
 
@@ -109,8 +110,43 @@ function App() {
 
   const handleTemplateComplete = async () => {
     setShowTemplateSelection(false);
-    await listEnvironments();
-    setAppState("select_project");
+    try {
+      const envs = await listEnvironments();
+      const defaultEnv = envs.find((env) => env.is_default);
+      if (!defaultEnv) {
+        setAppState("select_project");
+        return;
+      }
+
+      await createProject(defaultEnv.name, defaultEnv.id);
+      const allProjects = await listProjects();
+      const project = allProjects.find((p) => p.env_id === defaultEnv.id);
+      if (!project) {
+        setAppState("select_project");
+        return;
+      }
+
+      setCurrentProjectId(project.id);
+      setStartingProjectId(project.id);
+      setAppState("starting_jupyter");
+      setProgressMessage("正在启动 Jupyter Server...");
+      try {
+        const info = await invoke<JupyterInfo>("start_jupyter", {
+          projectId: project.id,
+        });
+        setJupyterInfo(info);
+        setAppState("ready");
+      } catch (jupyterErr) {
+        console.error("启动 Jupyter 失败:", jupyterErr);
+        setCurrentProjectId(null);
+        setAppState("select_project");
+      } finally {
+        setStartingProjectId(null);
+      }
+    } catch (err) {
+      console.error("自动创建项目失败:", err);
+      setAppState("select_project");
+    }
   };
 
   const handleTemplateError = (error: string) => {

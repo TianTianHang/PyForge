@@ -66,8 +66,10 @@ The system SHALL display progress feedback during environment creation from temp
 #### Scenario: Creation completion
 - **WHEN** environment creation completes successfully
 - **THEN** system SHALL close template selection screen
-- **AND** system SHALL navigate to project selection screen
-- **AND** success message SHALL NOT be displayed (seamless transition)
+- **AND** system SHALL automatically create a default project using the newly created environment
+- **AND** system SHALL automatically start Jupyter server for the new project
+- **AND** system SHALL navigate directly to JupyterLab interface
+- **AND** system SHALL NOT display project selection screen or welcome guide
 
 #### Scenario: Creation failure
 - **WHEN** environment creation fails

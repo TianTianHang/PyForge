@@ -1,41 +1,30 @@
 ## ADDED Requirements
 
 ### Requirement: User mode detection based on project count
-The system SHALL automatically detect user experience level based on the number of existing projects and display appropriate UI elements.
 
-#### Scenario: First-time user with zero projects
-- **WHEN** user opens application with zero existing projects
-- **THEN** system displays welcome screen with quick-start template cards
-- **AND** system sets user mode to "first-time"
+#### Scenario: First-time user with zero projects and zero environments
+- **WHEN** user opens application with zero environments
+- **THEN** system displays template selection screen
+- **AND** after template selection, system automatically creates project and launches Jupyter
 
-#### Scenario: Beginner user with 1-3 projects
-- **WHEN** user has created 1-3 projects
-- **THEN** system displays simplified project creation dialog with template selection
-- **AND** system sets user mode to "beginner"
-
-#### Scenario: Standard user with 4+ projects
-- **WHEN** user has created 4 or more projects
-- **THEN** system displays full-featured interface with all options exposed
-- **AND** system sets user mode to "standard"
+#### Scenario: First-time user with zero projects but existing environments
+- **WHEN** user has zero projects but one or more environments exist
+- **THEN** system SHALL display simple empty state with guidance to create a project
+- **AND** system SHALL NOT display template cards
 
 ### Requirement: Welcome screen for first-time users
-The system SHALL display a welcome screen when no projects exist, providing quick-start options instead of blank project list.
 
-#### Scenario: Welcome screen displayed on first launch
-- **WHEN** application launches with zero projects
-- **THEN** system shows welcome screen with application logo and friendly greeting
-- **AND** system displays 3-4 template cards for quick project creation
-- **AND** system provides "learn more" link to documentation (optional)
+#### Scenario: Welcome screen no longer shown to first-time users
+- **WHEN** first-time user selects a template and creates an environment
+- **THEN** system SHALL NOT display the welcome screen or project list
+- **AND** system SHALL automatically create a default project and launch Jupyter
 
-#### Scenario: User selects template from welcome screen
-- **WHEN** user clicks on a template card from welcome screen
-- **THEN** system opens simplified project creation dialog with template pre-selected
-- **AND** system focuses project name input field
-
-#### Scenario: Welcome screen hidden after project creation
-- **WHEN** user creates first project successfully
-- **THEN** system dismisses welcome screen and shows project list
-- **AND** system stores flag in localStorage to prevent showing welcome screen again
+#### Scenario: Welcome screen shown when all projects deleted
+- **WHEN** returning user has deleted all projects
+- **AND** one or more environments exist
+- **THEN** system SHALL display a simple empty state in the project panel area
+- **AND** empty state SHALL show a folder icon, "还没有项目" text, and guidance to use the "新建项目" button
+- **AND** empty state SHALL NOT show template cards
 
 ### Requirement: Simplified project creation dialog
 The system SHALL provide a simplified project creation dialog for first-time and beginner users that hides technical complexity.
