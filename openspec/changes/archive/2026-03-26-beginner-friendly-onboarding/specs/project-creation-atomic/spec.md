@@ -1,37 +1,4 @@
-## ADDED Requirements
-
-### Requirement: Project name validation
-The system SHALL validate that the project name does not already exist in the project list before creating a new project.
-
-#### Scenario: Duplicate project name detection
-- **WHEN** user attempts to create a project with a name that already exists (case-insensitive)
-- **THEN** system displays error message "项目名称已存在" and prevents creation
-
-#### Scenario: Unique project name allowed
-- **WHEN** user attempts to create a project with a name that does not exist in the project list
-- **THEN** system allows project creation to proceed
-
-### Requirement: Atomic project creation
-The system SHALL ensure that project creation operations are atomic, preventing race conditions when multiple creation requests occur simultaneously.
-
-#### Scenario: Concurrent creation with same name
-- **WHEN** two concurrent requests attempt to create projects with the same name
-- **THEN** only one project is created and the second request receives an error
-
-#### Scenario: Concurrent creation with different names
-- **WHEN** two concurrent requests attempt to create projects with different names
-- **THEN** both projects are created successfully without data corruption
-
-### Requirement: File locking for metadata operations
-The system SHALL use file locking to ensure exclusive access to project metadata during creation operations.
-
-#### Scenario: Metadata read during creation
-- **WHEN** project creation is in progress
-- **THEN** other operations reading project metadata wait for the lock to be released
-
-#### Scenario: Metadata write during creation
-- **WHEN** project creation is in progress
-- **THEN** other operations writing project metadata wait for the lock to be released
+## MODIFIED Requirements
 
 ### Requirement: Frontend duplicate submission prevention
 The system SHALL prevent users from submitting multiple project creation requests simultaneously by disabling the submit button during submission.
@@ -67,6 +34,8 @@ The system SHALL use immutable state updates to ensure consistent UI state durin
 - **THEN** dialog closes and project list updates consistently
 - **AND** system does not automatically initiate Jupyter startup
 - **AND** new project card appears in list with "Launch Jupyter" button enabled
+
+## ADDED Requirements
 
 ### Requirement: Template-based project creation flow
 The system SHALL support creating projects based on selected templates, which automatically configure environment, Python version, and packages.

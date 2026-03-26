@@ -12,13 +12,15 @@ pub enum CreateProgress {
     Complete,
 }
 
+#[deprecated(note = "已由模板系统替代，请使用 create_environment_from_template")]
 pub async fn create_default_environment(app: tauri::AppHandle) -> Result<(), String> {
     _ = create_environment(
         app,
         "Default".to_string(),
         "3.12".to_string(),
         vec!["numpy".to_string(), "pandas".to_string(), "matplotlib".to_string(), "ipykernel".to_string()],
-        None, // No project binding for default environment during migration
+        None,
+        None,
     ).await?;
     Ok(())
 }
@@ -29,6 +31,7 @@ pub async fn create_environment(
     python_version: String,
     packages: Vec<String>,
     project_id: Option<String>,
+    template_id: Option<String>,
 ) -> Result<Environment, String> {
     let env_id = name.to_lowercase().replace(" ", "-");
     let env_dir = get_env_dir(&env_id);
@@ -129,6 +132,7 @@ pub async fn create_environment(
         kernel_name: format!("pyforge-{}", env_id),
         created_at: chrono::Utc::now().to_rfc3339(),
         is_default: env_id == "default",
+        template_id,
     };
 
     let mut metadata = crate::infrastructure::load_envs_metadata()?;

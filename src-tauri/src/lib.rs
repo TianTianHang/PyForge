@@ -3,6 +3,7 @@ pub mod domain;
 pub mod infrastructure;
 pub mod models;
 pub mod state;
+pub mod templates;
 
 use domain::environment::{check_env_exists, list_environments};
 use domain::project::list_projects;
@@ -43,6 +44,8 @@ pub fn run() {
             api::validate_data_dir,
             api::migrate_data,
             api::select_directory,
+            api::list_templates,
+            api::create_environment_from_template,
         ])
         .setup(|app| {
             // Load global config

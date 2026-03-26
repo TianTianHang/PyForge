@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Project } from '../types';
+import { Project, UserMode } from '../types';
 import { useProject } from '../hooks/useProject';
 
 interface ProjectListProps {
@@ -9,16 +9,21 @@ interface ProjectListProps {
   onOpenSettings: (projectId: string) => void;
   onStartJupyter: (projectId: string) => void;
   isCurrentProject: (projectId: string) => boolean;
+  userMode: UserMode;
+  startingProjectId?: string | null;
 }
 
 const ProjectList: React.FC<ProjectListProps> = ({
   projects,
-  onSelectProject,
   onDeleteProject,
   onOpenSettings,
   onStartJupyter,
   isCurrentProject,
+  userMode,
+  startingProjectId,
 }) => {
+  // TODO: Use userMode for progressive disclosure (tasks 5.4, 5.5)
+  void userMode;
   const { loading, error } = useProject();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -74,10 +79,10 @@ const ProjectList: React.FC<ProjectListProps> = ({
             key={project.id}
             className={`group flex justify-between items-center p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
               isActive
-                ? 'bg-[var(--color-bg-elevated)] border-[var(--color-accent-primary)] shadow-lg shadow-[var(--color-accent-glow)]'
+                ? 'bg-[var(--color-bg-elevated)] border-[var(--color-border-hover)] shadow-lg'
                 : 'bg-[var(--color-bg-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg-tertiary)] hover:border-[var(--color-border-hover)]'
             }`}
-            onClick={() => onSelectProject(project.id)}
+            onClick={() => onOpenSettings(project.id)}
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
@@ -114,21 +119,33 @@ const ProjectList: React.FC<ProjectListProps> = ({
             </div>
 
             <div className="flex gap-2 ml-4">
-              {isActive && (
-                <button
-                  className="bg-[var(--color-success)] hover:bg-[var(--color-success)]/80 text-white border-none px-3 py-1.5 text-sm rounded-lg cursor-pointer transition-all shadow-md flex items-center gap-1.5"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onStartJupyter(project.id);
-                  }}
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  启动 Jupyter
-                </button>
-              )}
+              <button
+                disabled={startingProjectId === project.id}
+                className={`${
+                  startingProjectId === project.id
+                    ? 'bg-[var(--color-text-tertiary)] cursor-not-allowed opacity-60'
+                    : 'bg-[var(--color-success)] hover:bg-[var(--color-success)]/80 cursor-pointer shadow-md'
+                } text-white border-none px-3 py-1.5 text-sm rounded-lg transition-all flex items-center gap-1.5`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onStartJupyter(project.id);
+                }}
+              >
+                {startingProjectId === project.id ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    启动中...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    启动 Jupyter
+                  </>
+                )}
+              </button>
 
               <button
                 className="bg-[var(--color-bg-tertiary)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:border-[var(--color-border-hover)] px-3 py-1.5 text-sm rounded-lg cursor-pointer transition-all"

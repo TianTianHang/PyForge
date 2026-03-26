@@ -1,9 +1,9 @@
 use chrono::Utc;
 
 use crate::infrastructure::{
-    ensure_dir, get_env_dir, get_env_metadata_path, get_envs_dir, get_project_dir, get_projects_dir,
-    get_pyforge_root, save_envs_metadata, DEFAULT_PYTHON_VERSION, get_projects_metadata_path,
-    save_projects_metadata, load_envs_metadata,
+    ensure_dir, get_env_dir, get_env_metadata_path, get_envs_dir, get_project_dir,
+    get_projects_dir, get_projects_metadata_path, get_pyforge_root, load_envs_metadata,
+    save_envs_metadata, save_projects_metadata, DEFAULT_PYTHON_VERSION,
 };
 use crate::models::{Environment, EnvsMetadata, Project, ProjectsMetadata};
 use std::fs;
@@ -48,6 +48,7 @@ pub fn migrate_from_mvp() -> Result<(), String> {
                 kernel_name: "pyforge-default".to_string(),
                 created_at: Utc::now().to_rfc3339(),
                 is_default: true,
+                template_id: None,
             },
         );
 
@@ -76,7 +77,9 @@ pub fn migrate_projects() -> Result<(), String> {
                 // Check if it's a notebook file (.ipynb) or other files
                 let path = entry.path();
                 if let Some(ext) = path.extension() {
-                    if ext == "ipynb" || path.file_name().and_then(|s| s.to_str()) == Some("README.md") {
+                    if ext == "ipynb"
+                        || path.file_name().and_then(|s| s.to_str()) == Some("README.md")
+                    {
                         has_notebooks = true;
                         break;
                     }
@@ -117,10 +120,15 @@ pub fn migrate_projects() -> Result<(), String> {
         projects: Default::default(),
     };
 
-    metadata.projects.insert(project.id.clone(), project.clone());
+    metadata
+        .projects
+        .insert(project.id.clone(), project.clone());
     save_projects_metadata(&metadata)?;
 
-    println!("迁移完成: 创建了默认项目 '{}', 绑定到默认环境", project.name);
+    println!(
+        "迁移完成: 创建了默认项目 '{}', 绑定到默认环境",
+        project.name
+    );
 
     Ok(())
 }

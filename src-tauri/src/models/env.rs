@@ -16,6 +16,8 @@ pub struct Environment {
     pub kernel_name: String,
     pub created_at: String,
     pub is_default: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub template_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -14,23 +14,11 @@ fn get_init_mutex() -> &'static Mutex<bool> {
     INIT_MUTEX.get_or_init(|| Mutex::new(false))
 }
 
-/// 应用初始化：确保 base 环境和 default 环境存在
 #[tauri::command]
 pub async fn initialize_app(app: tauri::AppHandle) -> Result<String, String> {
-   
     let _guard = get_init_mutex().lock().await;
-  
-
-    if check_env_exists() {
-        return Ok("环境已存在".to_string());
-    }
-
 
     ensure_base_env(&app).await?;
-  
-    if !check_env_exists() {
-        create_default_environment(app).await?;
-    }
 
     Ok("初始化完成".to_string())
 }
@@ -52,6 +40,7 @@ pub async fn create_env(app: tauri::AppHandle) -> Result<String, String> {
         return Ok("环境已存在".to_string());
     }
 
+    #[allow(deprecated)]
     create_default_environment(app).await?;
 
     Ok("环境创建成功".to_string())
@@ -71,7 +60,7 @@ pub async fn create_environment(
     python_version: String,
     packages: Vec<String>,
 ) -> Result<Environment, String> {
-    create_environment_impl(app, name, python_version, packages, None).await
+    create_environment_impl(app, name, python_version, packages, None, None).await
 }
 
 /// 删除环境

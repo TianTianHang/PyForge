@@ -6,6 +6,7 @@ export interface Environment {
   kernel_name: string;
   created_at: string;
   is_default: boolean;
+  template_id?: string | null;
 }
 
 export interface Project {
@@ -55,6 +56,45 @@ export interface InstalledPackage {
   name: string;
   version: string;
 }
+
+/**
+ * Project template configuration for beginner-friendly onboarding
+ * Templates provide pre-configured environments based on use cases
+ */
+export interface ProjectTemplate {
+  /** Unique template identifier */
+  id: string;
+  /** Display name for the template */
+  name: string;
+  /** Brief description of the template's purpose */
+  description: string;
+  /** Emoji icon for visual identification */
+  icon: string;
+  /** Default Python version for this template */
+  pythonVersion: string;
+  /** Pre-installed packages for this template */
+  packages: string[];
+  /** Example use cases displayed to users */
+  useCases: string[];
+}
+
+export interface Template {
+  id: string;
+  display_name: string;
+  description: string;
+  icon: string;
+  dependencies: string[];
+  use_cases: string[];
+  requires_python: string;
+}
+
+/**
+ * User experience mode based on project count and visit history
+ * - first-time: No projects created, first visit
+ * - beginner: 1-3 projects, still learning
+ * - standard: 4+ projects, experienced user
+ */
+export type UserMode = 'first-time' | 'beginner' | 'standard';
 
 // Export config types
 export type {

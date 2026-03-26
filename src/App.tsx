@@ -9,8 +9,8 @@ import { ProgressScreen } from "./components/screens/ProgressScreen";
 import { ErrorScreen } from "./components/screens/ErrorScreen";
 import { JupyterViewer } from "./components/JupyterViewer";
 import { CreateEnvironmentDialog } from "./components/CreateEnvironmentDialog";
+import { TemplateSelectionScreen } from "./components/TemplateSelectionScreen";
 import ProjectPanel from "./components/ProjectPanel";
-import CreateProjectDialog from "./components/CreateProjectDialog";
 import ProjectSettings from "./components/ProjectSettings";
 import { usePackageManager } from "./hooks/usePackageManager";
 import { useEnvironment } from "./hooks/useEnvironment";
@@ -26,14 +26,15 @@ function App() {
   const [environments, setEnvironments] = useState<Environment[]>([]);
   const [currentEnvId, setCurrentEnvId] = useState<string | null>(null);
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  const [startingProjectId, setStartingProjectId] = useState<string | null>(null);
   const [jupyterInfo, setJupyterInfo] = useState<JupyterInfo | null>(null);
   const [progressMessage, setProgressMessage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [settingsConfig, setSettingsConfig] = useState<AppConfig | null>(null);
+  const [showTemplateSelection, setShowTemplateSelection] = useState(false);
 
   const { startJupyter, stopJupyter } = useJupyter({
     setAppState,
@@ -42,12 +43,13 @@ function App() {
     setError,
   });
 
-  const { initializeApp, createEnvironment } = useEnvironment({
+  const { initializeApp, createEnvironment, listEnvironments } = useEnvironment({
     setAppState,
     setEnvironments,
     setCurrentEnvId,
     setProgressMessage,
     setError,
+    setShowTemplateSelection,
   });
 
   const { projects, createProject, listProjects, deleteProject } = useProject();
@@ -105,9 +107,23 @@ function App() {
     initializeApp();
   };
 
-  const handleStartJupyter = async () => {
-    if (currentProjectId) {
-      await startJupyter(currentProjectId);
+  const handleTemplateComplete = async () => {
+    setShowTemplateSelection(false);
+    await listEnvironments();
+    setAppState("select_project");
+  };
+
+  const handleTemplateError = (error: string) => {
+    setError(error);
+  };
+
+  const handleStartJupyter = async (projectId: string) => {
+    setCurrentProjectId(projectId);
+    setStartingProjectId(projectId);
+    try {
+      await startJupyter(projectId);
+    } finally {
+      setStartingProjectId(null);
     }
   };
 
@@ -120,9 +136,15 @@ function App() {
     setShowCreateDialog(false);
   };
 
-  const handleCreateProject = async (name: string, envId: string) => {
+  const handleCreateProject = async (name: string, envId: string, autoLaunch = false) => {
     await createProject(name, envId);
-    setShowCreateProjectDialog(false);
+
+    if (autoLaunch) {
+      const project = projects.find(p => p.name === name);
+      if (project) {
+        await handleStartJupyter(project.id);
+      }
+    }
   };
 
   const handleDeleteProject = async (projectId: string) => {
@@ -166,6 +188,7 @@ function App() {
                 setShowCreateDialog(true);
               }}
               onOpenAppSettings={() => setShowSettings(true)}
+              startingProjectId={startingProjectId}
             />
           </div>
         );
@@ -191,24 +214,19 @@ function App() {
   return (
     <ThemeProvider>
       <div className="h-full w-full flex flex-col">
-        {renderContent()}
+        {showTemplateSelection ? (
+          <TemplateSelectionScreen
+            onComplete={handleTemplateComplete}
+            onError={handleTemplateError}
+          />
+        ) : (
+          renderContent()
+        )}
         {showCreateDialog && (
           <CreateEnvironmentDialog
             onClose={() => setShowCreateDialog(false)}
             onCreateEnvironment={handleCreateEnvironment}
             isLoading={false}
-          />
-        )}
-        {showCreateProjectDialog && (
-          <CreateProjectDialog
-            projects={projects}
-            environments={environments}
-            onClose={() => setShowCreateProjectDialog(false)}
-            onConfirm={handleCreateProject}
-            onCreateEnvironment={() => {
-              setShowCreateProjectDialog(false);
-              setShowCreateDialog(true);
-            }}
           />
         )}
         {selectedProject && (

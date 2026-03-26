@@ -1,0 +1,14 @@
+[project]
+name = "web-development"
+description = "适合 Web 应用开发和 API 项目"
+requires-python = ">=3.11"
+dependencies = [
+    "flask>=3.0.0",
+    "requests>=2.31.0",
+    "ipykernel>=6.0.0",
+]
+
+[tool.pyforge]
+display-name = "Web 开发"
+icon = "🌐"
+use-cases = ["Web 应用", "API 开发", "网络爬虫", "后端服务"]

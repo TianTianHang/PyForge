@@ -1,0 +1,13 @@
+[project]
+name = "general-learning"
+description = "适合 Python 基础学习和通用编程练习"
+requires-python = ">=3.11"
+dependencies = [
+    "ipykernel>=6.0.0",
+    "jupyterlab>=4.0.0",
+]
+
+[tool.pyforge]
+display-name = "通用学习"
+icon = "📚"
+use-cases = ["Python 基础", "算法练习", "编程学习", "实验项目"]

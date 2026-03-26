@@ -8,6 +8,7 @@ interface UseEnvironmentProps {
   setCurrentEnvId: (envId: string | null) => void;
   setProgressMessage: (message: string) => void;
   setError: (error: string | null) => void;
+  setShowTemplateSelection: (show: boolean) => void;
 }
 
 export function useEnvironment({
@@ -16,6 +17,7 @@ export function useEnvironment({
   setCurrentEnvId,
   setProgressMessage,
   setError,
+  setShowTemplateSelection,
 }: UseEnvironmentProps) {
   const isInitializingRef = useRef(false);
 
@@ -49,11 +51,9 @@ export function useEnvironment({
 
       const envs = await listEnvironments();
       if (envs.length > 0) {
-        // Transition to project selection instead of environment selection
         setAppState("select_project");
       } else {
-        setError("初始化完成但未找到环境");
-        setAppState("error");
+        setShowTemplateSelection(true);
       }
     } catch (err) {
       setError(err as string);

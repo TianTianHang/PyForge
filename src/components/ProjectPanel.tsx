@@ -1,8 +1,28 @@
-import React, { useState } from 'react';
-import { Project, Environment } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Project, Environment, UserMode } from '../types';
 import ProjectList from './ProjectList';
 import CreateProjectDialog from './CreateProjectDialog';
 import { ThemeToggle } from './ThemeToggle';
+import WelcomeGuide from './WelcomeGuide';
+
+const FIRST_TIME_VISIT_KEY = 'pyforge_first_time_visit';
+
+/**
+ * Calculate user experience mode based on project count and visit history
+ * Implements progressive disclosure by showing different UI based on user expertise
+ * @param projectCount - Number of projects the user has created
+ * @param hasVisitedBefore - Whether user has visited before (from localStorage)
+ * @returns The appropriate user mode for the current user
+ */
+const calculateUserMode = (projectCount: number, hasVisitedBefore: boolean): UserMode => {
+  if (projectCount === 0 && !hasVisitedBefore) {
+    return 'first-time';
+  }
+  if (projectCount < 4) {
+    return 'beginner';
+  }
+  return 'standard';
+};
 
 interface ProjectPanelProps {
   projects: Project[];
@@ -15,6 +35,7 @@ interface ProjectPanelProps {
   onOpenSettings: (projectId: string) => void;
   onCreateEnvironment?: () => void;
   onOpenAppSettings?: () => void;
+  startingProjectId?: string | null;
 }
 
 const ProjectPanel: React.FC<ProjectPanelProps> = ({
@@ -28,8 +49,19 @@ const ProjectPanel: React.FC<ProjectPanelProps> = ({
   onOpenSettings,
   onCreateEnvironment,
   onOpenAppSettings,
+  startingProjectId,
 }) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [userMode, setUserMode] = useState<UserMode>('first-time');
+  const [hasVisitedBefore, setHasVisitedBefore] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+
+  useEffect(() => {
+    const visited = localStorage.getItem(FIRST_TIME_VISIT_KEY) === 'true';
+    setHasVisitedBefore(visited);
+    const mode = calculateUserMode(projects.length, visited);
+    setUserMode(mode);
+  }, [projects.length]);
 
   const handleClickOutside = () => {
     onSelectProject(null);
@@ -38,6 +70,10 @@ const ProjectPanel: React.FC<ProjectPanelProps> = ({
   const handleCreateProject = async (name: string, envId: string) => {
     try {
       await onCreateProject(name, envId);
+      if (!hasVisitedBefore) {
+        localStorage.setItem(FIRST_TIME_VISIT_KEY, 'true');
+        setHasVisitedBefore(true);
+      }
       setShowCreateDialog(false);
     } catch (err) {
       console.error('创建项目失败:', err);
@@ -103,22 +139,16 @@ const ProjectPanel: React.FC<ProjectPanelProps> = ({
             onOpenSettings={onOpenSettings}
             onStartJupyter={onStartJupyter}
             isCurrentProject={isCurrentProject}
+            userMode={userMode}
+            startingProjectId={startingProjectId}
           />
         ) : (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="w-16 h-16 rounded-full bg-[var(--color-bg-tertiary)] flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-[var(--color-text-tertiary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-              </svg>
-            </div>
-            <p className="text-[var(--color-text-tertiary)] mb-4">暂无项目</p>
-            <button
-              className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-secondary)] text-white border-none px-6 py-2.5 text-sm rounded-lg cursor-pointer transition-all shadow-md shadow-[var(--color-accent-glow)] hover:shadow-lg hover:scale-105"
-              onClick={() => setShowCreateDialog(true)}
-            >
-              创建第一个项目
-            </button>
-          </div>
+          <WelcomeGuide
+            onSelectTemplate={(templateId) => {
+              setSelectedTemplate(templateId);
+              setShowCreateDialog(true);
+            }}
+          />
         )}
       </div>
 
@@ -126,9 +156,14 @@ const ProjectPanel: React.FC<ProjectPanelProps> = ({
         <CreateProjectDialog
           projects={projects}
           environments={environments}
-          onClose={() => setShowCreateDialog(false)}
+          onClose={() => {
+            setShowCreateDialog(false);
+            setSelectedTemplate(null);
+          }}
           onConfirm={handleCreateProject}
           onCreateEnvironment={onCreateEnvironment}
+          userMode={userMode}
+          preselectedTemplate={selectedTemplate}
         />
       )}
     </div>
