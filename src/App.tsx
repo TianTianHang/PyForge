@@ -159,9 +159,7 @@ function App() {
               projects={projects}
               environments={environments}
               currentProjectId={currentProjectId}
-              onCreateProject={async () => {
-                setShowCreateProjectDialog(true);
-              }}
+              onCreateProject={handleCreateProject}
               onDeleteProject={handleDeleteProject}
               onSelectProject={handleSelectProject}
               onStartJupyter={handleStartJupyter}
@@ -208,6 +206,7 @@ function App() {
       )}
       {showCreateProjectDialog && (
         <CreateProjectDialog
+          projects={projects}
           environments={environments}
           onClose={() => setShowCreateProjectDialog(false)}
           onConfirm={handleCreateProject}

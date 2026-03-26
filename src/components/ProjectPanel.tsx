@@ -88,6 +88,7 @@ const ProjectPanel: React.FC<ProjectPanelProps> = ({
 
       {showCreateDialog && (
         <CreateProjectDialog
+          projects={projects}
           environments={environments}
           onClose={() => setShowCreateDialog(false)}
           onConfirm={handleCreateProject}

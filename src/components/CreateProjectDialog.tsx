@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Environment } from '../types';
+import { Environment, Project } from '../types';
 
 interface CreateProjectDialogProps {
+  projects: Project[];
   environments: Environment[];
   onClose: () => void;
   onConfirm: (name: string, envId: string) => void;
@@ -12,9 +13,11 @@ interface CreateProjectDialogState {
   name: string;
   selectedEnv: string;
   error: string;
+  isSubmitting: boolean;
 }
 
 const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
+  projects,
   environments,
   onClose,
   onConfirm,
@@ -24,35 +27,46 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     name: '',
     selectedEnv: '',
     error: '',
+    isSubmitting: false,
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    state.error = '';
+
+    // Prevent duplicate submissions
+    if (state.isSubmitting) {
+      return;
+    }
+
+    const newState = { ...state, error: '', isSubmitting: true };
+    setState(newState);
 
     if (!state.name.trim()) {
-      state.error = '请输入项目名称';
-      setState({ ...state });
+      setState({ ...newState, error: '请输入项目名称', isSubmitting: false });
       return;
     }
 
     if (!state.selectedEnv) {
-      state.error = '请选择环境';
-      setState({ ...state });
+      setState({ ...newState, error: '请选择环境', isSubmitting: false });
       return;
     }
 
-    const nameExists = environments.some(env =>
-      env.name.toLowerCase() === state.name.trim().toLowerCase()
+    // Check if project name already exists
+    const nameExists = projects.some(proj =>
+      proj.name.toLowerCase() === state.name.trim().toLowerCase()
     );
 
     if (nameExists) {
-      state.error = '项目名称已存在';
-      setState({ ...state });
+      setState({ ...newState, error: '项目名称已存在', isSubmitting: false });
       return;
     }
 
-    onConfirm(state.name.trim(), state.selectedEnv);
+    try {
+      await onConfirm(state.name.trim(), state.selectedEnv);
+    } finally {
+      // Reset submitting state after completion
+      setState({ ...state, isSubmitting: false });
+    }
   };
 
   const handleNewEnvClick = () => {
@@ -130,9 +144,14 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
             </button>
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white border-none px-6 py-2.5 text-base rounded-lg cursor-pointer transition-colors"
+              disabled={state.isSubmitting}
+              className={`${
+                state.isSubmitting
+                  ? 'bg-slate-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+              } text-white border-none px-6 py-2.5 text-base rounded-lg transition-colors`}
             >
-              创建
+              {state.isSubmitting ? '创建中...' : '创建'}
             </button>
           </div>
         </form>

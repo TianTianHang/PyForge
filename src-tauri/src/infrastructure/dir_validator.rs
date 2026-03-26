@@ -1,7 +1,6 @@
 use std::fs;
 use std::path::PathBuf;
 use serde::{Serialize, Deserialize};
-use crate::models::AppConfig;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ValidationResult {
@@ -61,6 +60,7 @@ pub fn validate_directory(dir_path: &str) -> ValidationResult {
 /// Test directory writability by creating, writing, reading, and deleting test files
 fn test_directory_writability(dir: &PathBuf) -> TestFileResult {
     let test_file = dir.join(TEST_FILE_NAME);
+    let test_content = test_file_content(); // Generate once and reuse
     let mut result = TestFileResult {
         created: false,
         written: false,
@@ -79,14 +79,14 @@ fn test_directory_writability(dir: &PathBuf) -> TestFileResult {
             result.created = true;
 
             // Step 2: Write test content
-            match write_test_content(&mut file) {
+            match write_test_content(&mut file, &test_content) {
                 Ok(()) => {
                     result.written = true;
 
                     // Step 3: Read test content
                     let content = fs::read_to_string(&test_file);
                     match content {
-                        Ok(read_content) if read_content == test_file_content() => {
+                        Ok(read_content) if read_content == test_content => {
                             result.read = true;
                         }
                         Err(e) => {
@@ -115,11 +115,11 @@ fn test_directory_writability(dir: &PathBuf) -> TestFileResult {
 }
 
 /// Write test content to a file
-fn write_test_content(file: &mut std::fs::File) -> Result<(), std::io::Error> {
+fn write_test_content(file: &mut std::fs::File, content: &str) -> Result<(), std::io::Error> {
     use std::io::Write;
-    let content = test_file_content();
     file.write_all(content.as_bytes())?;
-    file.sync_all()? // Ensure data is written to disk
+    file.sync_all()?; // Ensure data is written to disk
+    Ok(())
 }
 
 /// Generate test file content with timestamp and random data
@@ -130,30 +130,4 @@ fn test_file_content() -> String {
         .unwrap()
         .as_secs();
     format!("pyforge_write_test_{}_{}", timestamp, uuid::Uuid::new_v4())
-}
-
-/// Select a directory via system file dialog
-#[tauri::command]
-pub async fn select_directory() -> Result<Option<String>, String> {
-    // This would typically use a file dialog plugin
-    // For now, return None (directory selection needs to be implemented with Tauri dialog plugin)
-    Ok(None)
-
-    // TODO: Implement when tauri-plugin-dialog is available
-    /*
-    match rfd::AsyncFileDialog::new()
-        .set_title("选择数据目录")
-        .pick_folder()
-        .await
-    {
-        Some(path) => Ok(Some(path.to_string_lossy().to_string())),
-        None => Ok(None),
-    }
-    */
-}
-
-/// Enhanced validate directory command for Tauri
-#[tauri::command]
-pub fn validate_data_dir(path: String) -> Result<ValidationResult, String> {
-    Ok(validate_directory(&path))
 }

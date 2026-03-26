@@ -1,37 +1,59 @@
 use crate::infrastructure::{
     ensure_dir, get_kernel_store_dir, get_project_kernel_dir, load_envs_metadata,
-    load_projects_metadata,
+    load_projects_metadata, path_to_str,
 };
 use std::fs;
+use crate::debug;
 
 /// Bind a kernel to a specific project
 pub fn bind_kernel_to_project(project_id: &str, env_id: &str) -> Result<(), String> {
     let kernel_name = format!("pyforge-{}", env_id);
     let global_kernel_dir = get_kernel_store_dir().join(&kernel_name);
 
+    debug!("🔗 [KERNEL] 开始绑定内核到项目:");
+    debug!("  - 项目ID: {}", project_id);
+    debug!("  - 环境ID: {}", env_id);
+    debug!("  - 内核名称: {}", kernel_name);
+
     if !global_kernel_dir.exists() {
+        debug!("❌ [KERNEL] 全局内核目录不存在: {:?}", global_kernel_dir);
         return Err(format!("全局内核目录不存在: {:?}", global_kernel_dir));
     }
+    debug!("✅ [KERNEL] 全局内核目录存在: {}", path_to_str(&global_kernel_dir)?);
 
     let project_kernels_dir = get_project_kernel_dir(project_id);
+    debug!("📁 [KERNEL] 项目内核目录: {}", path_to_str(&project_kernels_dir)?);
     ensure_dir(&project_kernels_dir)?;
+    debug!("✅ [KERNEL] 项目内核目录准备就绪");
 
     let link_path = project_kernels_dir.join(&kernel_name);
+    debug!("🔗 [KERNEL] 链接路径: {}", path_to_str(&link_path)?);
+
     if link_path.exists() {
+        debug!("ℹ️  [KERNEL] 内核已绑定，跳过");
         return Ok(()); // Already bound
     }
 
+    debug!("🔗 [KERNEL] 创建内核链接...");
     #[cfg(unix)]
     {
         std::os::unix::fs::symlink(&global_kernel_dir, &link_path)
-            .map_err(|e| format!("创建内核链接失败: {}", e))?;
+            .map_err(|e| {
+                debug!("❌ [KERNEL] 创建内核链接失败: {}", e);
+                format!("创建内核链接失败: {}", e)
+            })?;
     }
 
     #[cfg(windows)]
     {
         std::os::windows::fs::symlink_dir(&global_kernel_dir, &link_path)
-            .map_err(|e| format!("创建内核链接失败: {}", e))?;
+            .map_err(|e| {
+                debug!("❌ [KERNEL] 创建内核链接失败: {}", e);
+                format!("创建内核链接失败: {}", e)
+            })?;
     }
+
+    debug!("✅ [KERNEL] 内核绑定成功: {} -> {}", kernel_name, path_to_str(&link_path)?);
 
     Ok(())
 }

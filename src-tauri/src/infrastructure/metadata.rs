@@ -13,6 +13,13 @@ pub fn load_envs_metadata() -> Result<EnvsMetadata, String> {
     let content = std::fs::read_to_string(&metadata_path)
         .map_err(|e| format!("读取环境元数据失败: {}", e))?;
 
+    if content.trim().is_empty() {
+        return Ok(EnvsMetadata {
+            version: 1,
+            environments: Default::default(),
+        });
+    }
+
     serde_json::from_str(&content).map_err(|e| format!("解析环境元数据失败: {}", e))
 }
 
@@ -37,6 +44,13 @@ pub fn load_projects_metadata() -> Result<ProjectsMetadata, String> {
 
     let content = std::fs::read_to_string(&metadata_path)
         .map_err(|e| format!("读取项目元数据失败: {}", e))?;
+
+    if content.trim().is_empty() {
+        return Ok(ProjectsMetadata {
+            version: 1,
+            projects: Default::default(),
+        });
+    }
 
     serde_json::from_str(&content).map_err(|e| format!("解析项目元数据失败: {}", e))
 }

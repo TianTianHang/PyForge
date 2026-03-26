@@ -21,15 +21,8 @@ pub fn update_config(config: AppConfig) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn validate_data_dir(path: String) -> Result<bool, String> {
-    let dir = std::path::PathBuf::from(&path);
-    if dir.exists() {
-        Ok(true)
-    } else {
-        std::fs::create_dir_all(&dir)
-            .map(|_| true)
-            .map_err(|e| format!("无法创建目录 {}: {}", path, e))
-    }
+pub fn validate_data_dir(path: String) -> Result<crate::infrastructure::dir_validator::ValidationResult, String> {
+    Ok(crate::infrastructure::dir_validator::validate_directory(&path))
 }
 
 #[tauri::command]

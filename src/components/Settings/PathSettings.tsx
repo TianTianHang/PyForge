@@ -55,9 +55,6 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
       const selected = await invoke<string | null>("select_directory");
       if (selected) {
         setDataDirInput(selected);
-        onChange({
-          paths: { ...config.paths, data_dir: selected },
-        });
       }
     } catch (err) {
       console.error("选择目录失败:", err);
@@ -66,9 +63,7 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
 
   const handleInputChange = (value: string) => {
     setDataDirInput(value);
-    onChange({
-      paths: { ...config.paths, data_dir: value || undefined },
-    });
+    // Don't update config yet - only update after migration succeeds
   };
 
   const handleMigrateClick = () => {
@@ -82,22 +77,16 @@ const PathSettings: React.FC<PathSettingsProps> = ({ config, onChange }) => {
     setMigrationStep("正在准备迁移...");
 
     try {
-      // This would call the migrate_data Tauri command
-      // For now, simulating the migration process
-      const steps = [
-        "正在迁移环境目录...",
-        "正在迁移项目目录...",
-        "正在迁移内核目录...",
-        "正在迁移基础环境...",
-        "正在迁移元数据文件...",
-        "正在更新配置文件...",
-        "正在重新生成 uv.toml...",
-      ];
+      // Call the actual migration command
+      await invoke<void>("migrate_data", {
+        oldPath: currentDataDir,
+        newPath: dataDirInput,
+      });
 
-      for (const step of steps) {
-        setMigrationStep(step);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
+      // Migration successful - update the config
+      onChange({
+        paths: { ...config.paths, data_dir: dataDirInput || undefined },
+      });
 
       setShowMigrateDialog(false);
       setMigrationStep("");

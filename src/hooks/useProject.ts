@@ -18,12 +18,14 @@ export const useProject = (): UseProjectHook => {
   const [error, setError] = useState<string | null>(null);
 
   const createProject = useCallback(async (name: string, envId: string) => {
-    setLoading(true);
     setError(null);
+    setLoading(true);
 
     try {
+      // 创建项目
       await invoke('create_project_command', { name, envId });
-      await listProjects(); // Refresh the list
+      // 刷新列表
+      await listProjects();
     } catch (err) {
       setError(err instanceof Error ? err.message : '创建项目失败');
       throw err;
@@ -33,7 +35,6 @@ export const useProject = (): UseProjectHook => {
   }, []);
 
   const listProjects = useCallback(async () => {
-    setLoading(true);
     setError(null);
 
     try {
@@ -42,8 +43,6 @@ export const useProject = (): UseProjectHook => {
     } catch (err) {
       setError(err instanceof Error ? err.message : '获取项目列表失败');
       throw err;
-    } finally {
-      setLoading(false);
     }
   }, []);
 

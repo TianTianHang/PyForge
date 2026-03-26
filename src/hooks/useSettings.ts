@@ -66,17 +66,8 @@ export function useSettings({
   const validateDataDir = useCallback(async (path: string): Promise<ValidationResult> => {
     try {
       setIsLoading(true);
-      const isValid = await invoke<boolean>("validate_data_dir", { path });
-
-      if (isValid) {
-        return { is_valid: true, is_writable: true };
-      } else {
-        return {
-          is_valid: false,
-          is_writable: false,
-          error: "目录不可写或无法创建",
-        };
-      }
+      const result = await invoke<ValidationResult>("validate_data_dir", { path });
+      return result;
     } catch (err) {
       const errorMessage = err as string;
       return {
