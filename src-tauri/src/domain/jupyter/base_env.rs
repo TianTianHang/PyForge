@@ -3,7 +3,7 @@ use std::sync::OnceLock;
 use tauri::{Emitter, AppHandle};
 
 use crate::infrastructure::{
-    ensure_dir, get_base_env_dir, get_base_python_path, path_to_str, run_uv_command, PYPI_MIRROR_URL,
+    ensure_dir, get_base_env_dir, get_base_python_path, path_to_str, run_uv_command,
 };
 
 static BASE_ENV_MUTEX: OnceLock<tokio::sync::Mutex<bool>> = OnceLock::new();
@@ -41,7 +41,6 @@ async fn create_base_env(app: &AppHandle) -> Result<PathBuf, String> {
     let output = run_uv_command(app, &[
         "pip", "install", "--python",
         path_to_str(&python_path)?,
-        "--index-url", PYPI_MIRROR_URL,
         "jupyterlab",
     ]).await?;
 

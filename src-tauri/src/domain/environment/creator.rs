@@ -1,5 +1,5 @@
 use tauri::Emitter;
-use crate::infrastructure::{get_env_dir, get_pyforge_root, ensure_dir, get_python_path, path_to_str, run_uv_command, PYPI_MIRROR_URL};
+use crate::infrastructure::{get_env_dir, get_pyforge_root, ensure_dir, get_python_path, path_to_str, run_uv_command};
 use crate::models::Environment;
 use crate::domain::environment::{register_jupyter_kernel, bind_kernel_to_project};
 
@@ -55,14 +55,11 @@ pub async fn create_environment(
 
     let _ = app.emit("env-progress", format!("正在安装基础包 ({})...", packages.join(", ")));
 
-    let mirror_url = PYPI_MIRROR_URL;
-
     if !packages.is_empty() {
         // Build base args for install command
         let mut base_args = vec![
             "pip", "install", "--python",
             path_to_str(&python)?,
-            "--index-url", mirror_url,
         ];
         // Append package names to install
         base_args.extend(packages.iter().map(|s| s.as_str()));

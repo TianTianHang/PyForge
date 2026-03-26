@@ -28,4 +28,4 @@ rand = "0.9"
 uuid = { version = "1", features = ["v4"] }
 tokio = { version = "1", features = ["process", "time"] }
 chrono = { version = "0.4", features = ["serde"] }
-
+toml = "0.8"

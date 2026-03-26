@@ -1,7 +1,7 @@
 use serde_json::Value;
 use tauri::{AppHandle, Emitter};
 
-use crate::infrastructure::{get_python_path, path_to_str, run_uv_command, PYPI_MIRROR_URL};
+use crate::infrastructure::{get_python_path, path_to_str, run_uv_command};
 use crate::models::InstalledPackage;
 
 pub async fn list_packages(app: AppHandle, env_id: &str) -> Result<Vec<InstalledPackage>, String> {
@@ -45,8 +45,6 @@ pub async fn install_package(
         "install",
         "--python",
         python_str,
-        "--index-url",
-        PYPI_MIRROR_URL,
         package_name,
     ]).await?;
 

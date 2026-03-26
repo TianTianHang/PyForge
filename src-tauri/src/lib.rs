@@ -6,7 +6,7 @@ pub mod state;
 
 use domain::environment::{check_env_exists, list_environments};
 use domain::project::list_projects;
-use infrastructure::{get_env_dir, migrate_from_mvp, migrate_projects};
+use infrastructure::{get_env_dir, init_config, init_paths, migrate_from_mvp, migrate_projects, write_uv_config};
 use state::AppStateWrapper;
 use tauri::Manager;
 
@@ -37,8 +37,17 @@ pub fn run() {
             api::unbind_kernel_command,
             api::list_project_kernels_command,
             api::list_unbound_kernels_command,
+            api::get_config,
+            api::update_config,
+            api::validate_data_dir,
+            api::migrate_data,
         ])
         .setup(|app| {
+            // Load global config
+            let config = init_config()?;
+            init_paths(config.data_dir())?;
+            write_uv_config(&config)?;
+
             migrate_from_mvp()?;
             migrate_projects()?;
 
