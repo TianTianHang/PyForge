@@ -1,5 +1,11 @@
 use rand::Rng;
+use std::path::PathBuf;
 use uuid::Uuid;
+
+/// 将 PathBuf 转换为 &str，用于命令参数传递
+pub fn path_to_str(path: &PathBuf) -> Result<&str, String> {
+    path.to_str().ok_or_else(|| "路径包含无效字符".to_string())
+}
 
 pub fn find_available_port() -> Result<u16, String> {
     let mut rng = rand::rng();

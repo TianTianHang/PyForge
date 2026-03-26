@@ -1,17 +1,15 @@
 use serde_json::Value;
-use tauri::Emitter;
-use tokio::process::Command;
+use tauri::{AppHandle, Emitter};
 
-use crate::infrastructure::{get_python_path, PYPI_MIRROR_URL};
+use crate::infrastructure::{get_python_path, path_to_str, run_uv_command, PYPI_MIRROR_URL};
 use crate::models::InstalledPackage;
 
-pub async fn list_packages(env_id: &str) -> Result<Vec<InstalledPackage>, String> {
+pub async fn list_packages(app: AppHandle, env_id: &str) -> Result<Vec<InstalledPackage>, String> {
     let python = get_python_path(env_id);
-    let output = Command::new("uv")
-        .args(["pip", "list", "--python", python.to_str().ok_or_else(|| "Python 路径无效".to_string())?, "--format", "json"])
-        .output()
-        .await
-        .map_err(|e| format!("获取包列表失败: {}", e))?;
+    let python_str = path_to_str(&python)?;
+
+    // Use sidecar to execute uv
+    let output = run_uv_command(&app, &["pip", "list", "--python", python_str, "--format", "json"]).await?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -33,26 +31,24 @@ pub async fn list_packages(env_id: &str) -> Result<Vec<InstalledPackage>, String
 }
 
 pub async fn install_package(
-    app: tauri::AppHandle,
+    app: AppHandle,
     env_id: &str,
     package_name: &str,
 ) -> Result<(), String> {
     let python = get_python_path(env_id);
     let _ = app.emit("env-progress", format!("正在安装包 {}...", package_name));
 
-    let output = Command::new("uv")
-        .args([
-            "pip",
-            "install",
-            "--python",
-            python.to_str().ok_or_else(|| "Python 路径无效".to_string())?,
-            "--index-url",
-            PYPI_MIRROR_URL,
-            package_name,
-        ])
-        .output()
-        .await
-        .map_err(|e| format!("安装包失败: {}", e))?;
+    let python_str = path_to_str(&python)?;
+
+    let output = run_uv_command(&app, &[
+        "pip",
+        "install",
+        "--python",
+        python_str,
+        "--index-url",
+        PYPI_MIRROR_URL,
+        package_name,
+    ]).await?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -62,19 +58,19 @@ pub async fn install_package(
     Ok(())
 }
 
-pub async fn uninstall_package(env_id: &str, package_name: &str) -> Result<(), String> {
+pub async fn uninstall_package(app: AppHandle, env_id: &str, package_name: &str) -> Result<(), String> {
     let python = get_python_path(env_id);
-    let output = Command::new("uv")
-        .args([
-            "pip",
-            "uninstall",
-            "--python",
-            python.to_str().ok_or_else(|| "Python 路径无效".to_string())?,
-            package_name,
-        ])
-        .output()
-        .await
-        .map_err(|e| format!("卸载包失败: {}", e))?;
+    let python_str = path_to_str(&python)?;
+
+    // 使用 -y 参数自动确认卸载，无需用户交互
+    let output = run_uv_command(&app, &[
+        "pip",
+        "uninstall",
+        "--python",
+        python_str,
+        "-y",
+        package_name,
+    ]).await?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);

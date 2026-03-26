@@ -82,8 +82,8 @@ pub async fn delete_environment(env_id: String) -> Result<(), String> {
 
 /// 获取环境的包列表
 #[tauri::command]
-pub async fn list_packages(env_id: String) -> Result<Vec<InstalledPackage>, String> {
-    crate::domain::environment::package_manager::list_packages(&env_id).await
+pub async fn list_packages(app: tauri::AppHandle, env_id: String) -> Result<Vec<InstalledPackage>, String> {
+    crate::domain::environment::package_manager::list_packages(app, &env_id).await
 }
 
 /// 安装包
@@ -98,6 +98,6 @@ pub async fn install_package(
 
 /// 卸载包
 #[tauri::command]
-pub async fn uninstall_package(env_id: String, package_name: String) -> Result<(), String> {
-    crate::domain::environment::package_manager::uninstall_package(&env_id, &package_name).await
+pub async fn uninstall_package(app: tauri::AppHandle, env_id: String, package_name: String) -> Result<(), String> {
+    crate::domain::environment::package_manager::uninstall_package(app, &env_id, &package_name).await
 }

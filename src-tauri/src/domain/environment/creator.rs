@@ -1,6 +1,5 @@
 use tauri::Emitter;
-use tokio::process::Command;
-use crate::infrastructure::{get_env_dir, get_pyforge_root, ensure_dir, get_python_path, PYPI_MIRROR_URL};
+use crate::infrastructure::{get_env_dir, get_pyforge_root, ensure_dir, get_python_path, path_to_str, run_uv_command, PYPI_MIRROR_URL};
 use crate::models::Environment;
 use crate::domain::environment::{register_jupyter_kernel, bind_kernel_to_project};
 
@@ -41,11 +40,12 @@ pub async fn create_environment(
 
         let _ = app.emit("env-progress", format!("正在创建虚拟环境 ({})...", name));
 
-        let output = Command::new("uv")
-            .args(["venv", env_dir.to_str().unwrap(), "--python", &python_version])
-            .output()
-            .await
-            .map_err(|e| format!("执行 uv venv 失败: {}", e))?;
+        let output = run_uv_command(&app, &[
+            "venv",
+            path_to_str(&env_dir)?,
+            "--python",
+            &python_version
+        ]).await?;
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
@@ -58,16 +58,16 @@ pub async fn create_environment(
     let mirror_url = PYPI_MIRROR_URL;
 
     if !packages.is_empty() {
-        let output = Command::new("uv")
-            .args([
-                "pip", "install", "--python",
-                python.to_str().unwrap(),
-                "--index-url", mirror_url,
-            ])
-            .args(packages.clone())
-            .output()
-            .await
-            .map_err(|e| format!("安装包失败: {}", e))?;
+        // Build base args for install command
+        let mut base_args = vec![
+            "pip", "install", "--python",
+            path_to_str(&python)?,
+            "--index-url", mirror_url,
+        ];
+        // Append package names to install
+        base_args.extend(packages.iter().map(|s| s.as_str()));
+
+        let output = run_uv_command(&app, &base_args).await?;
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);

@@ -13,7 +13,7 @@ PyForge is a desktop Python development environment built with Tauri. It provide
 - **Package Manager**: pnpm
 - **Python Environment**: uv (bundled for environment management)
 - **Embedded Tools**: Jupyter Notebook/Lab (loaded via WebView)
-
+- Environment Management: The entire development environment must be activated using `nix develop` to ensure dependency consistency and zero-configuration setup.
 ## Common Commands
 
 ```bash
