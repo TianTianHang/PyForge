@@ -350,13 +350,12 @@ mod tests {
         }
 
         // 迁移应该成功（损坏链接也应被复制）
-        let result = migrate_data(
+        migrate_data(
             old_dir.path().to_str().unwrap().to_string(),
             new_dir.path().to_str().unwrap().to_string(),
-        );
+        ).await.unwrap();
 
         // 损坏链接应该被复制，但可能是警告而不是错误
-        assert!(result.await.is_ok());
         assert!(new_dir.path().join("broken").is_symlink());
     }
 

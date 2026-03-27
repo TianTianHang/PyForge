@@ -2,6 +2,26 @@ use std::time::Duration;
 use tokio::process::{Child, Command};
 use tokio::time::sleep;
 
+/// Check if a process with the given PID exists.
+async fn process_exists(pid: u32) -> bool {
+    #[cfg(unix)]
+    {
+        let output = Command::new("ps")
+            .args(["-p", &pid.to_string()])
+            .output()
+            .await;
+        output.map(|o| o.status.success()).unwrap_or(false)
+    }
+    #[cfg(windows)]
+    {
+        let output = Command::new("tasklist")
+            .args(["/FI", &format!("PID eq {}", pid)])
+            .output()
+            .await;
+        output.map(|o| o.status.success()).unwrap_or(false)
+    }
+}
+
 pub async fn spawn(command: &str, args: &[&str]) -> Result<Child, String> {
     Command::new(command)
         .args(args)
@@ -12,8 +32,11 @@ pub async fn spawn(command: &str, args: &[&str]) -> Result<Child, String> {
 /// Gracefully terminate a process by sending SIGTERM (Unix) or taskkill without /F (Windows).
 ///
 /// On Windows, uses `taskkill /T /PID` to terminate the process tree including all child processes.
-/// Returns an error if the command fails to execute or returns a non-zero exit status.
+/// Returns Ok(()) if the process doesn't exist or is successfully terminated.
 pub async fn kill_gracefully(pid: u32) -> Result<(), String> {
+    if !process_exists(pid).await {
+        return Ok(());
+    }
     #[cfg(unix)]
     {
         let output = Command::new("kill")
@@ -52,8 +75,11 @@ pub async fn kill_gracefully(pid: u32) -> Result<(), String> {
 /// On Windows, uses `taskkill /F /T /PID` to forcefully terminate the process tree including
 /// all child processes. The /F flag ensures forceful termination, while /T ensures the
 /// entire process tree is terminated.
-/// Returns an error if the command fails to execute or returns a non-zero exit status.
+/// Returns Ok(()) if the process doesn't exist or is successfully terminated.
 pub async fn kill_forcefully(pid: u32) -> Result<(), String> {
+    if !process_exists(pid).await {
+        return Ok(());
+    }
     #[cfg(unix)]
     {
         let output = Command::new("kill")
