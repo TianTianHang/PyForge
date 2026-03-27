@@ -9,38 +9,80 @@ pub async fn spawn(command: &str, args: &[&str]) -> Result<Child, String> {
         .map_err(|e| format!("启动进程失败: {}", e))
 }
 
+/// Gracefully terminate a process by sending SIGTERM (Unix) or taskkill without /F (Windows).
+///
+/// On Windows, uses `taskkill /T /PID` to terminate the process tree including all child processes.
+/// Returns an error if the command fails to execute or returns a non-zero exit status.
 pub async fn kill_gracefully(pid: u32) -> Result<(), String> {
     #[cfg(unix)]
     {
-        let _ = Command::new("kill")
+        let output = Command::new("kill")
             .args(["-TERM", &pid.to_string()])
             .output()
-            .await;
+            .await
+            .map_err(|e| format!("执行终止命令失败: {}", e))?;
+
+        if !output.status.success() {
+            return Err(format!(
+                "终止进程失败: {}",
+                String::from_utf8_lossy(&output.stderr)
+            ));
+        }
     }
     #[cfg(windows)]
     {
-        let _ = Command::new("taskkill")
-            .args(["/PID", &pid.to_string()])
+        let output = Command::new("taskkill")
+            .args(["/T", "/PID", &pid.to_string()])
             .output()
-            .await;
+            .await
+            .map_err(|e| format!("执行终止命令失败: {}", e))?;
+
+        if !output.status.success() {
+            return Err(format!(
+                "终止进程失败: {}",
+                String::from_utf8_lossy(&output.stderr)
+            ));
+        }
     }
     Ok(())
 }
 
+/// Forcefully terminate a process by sending SIGKILL (Unix) or taskkill with /F (Windows).
+///
+/// On Windows, uses `taskkill /F /T /PID` to forcefully terminate the process tree including
+/// all child processes. The /F flag ensures forceful termination, while /T ensures the
+/// entire process tree is terminated.
+/// Returns an error if the command fails to execute or returns a non-zero exit status.
 pub async fn kill_forcefully(pid: u32) -> Result<(), String> {
     #[cfg(unix)]
     {
-        let _ = Command::new("kill")
+        let output = Command::new("kill")
             .args(["-9", &pid.to_string()])
             .output()
-            .await;
+            .await
+            .map_err(|e| format!("执行终止命令失败: {}", e))?;
+
+        if !output.status.success() {
+            return Err(format!(
+                "终止进程失败: {}",
+                String::from_utf8_lossy(&output.stderr)
+            ));
+        }
     }
     #[cfg(windows)]
     {
-        let _ = Command::new("taskkill")
-            .args(["/F", "/PID", &pid.to_string()])
+        let output = Command::new("taskkill")
+            .args(["/F", "/T", "/PID", &pid.to_string()])
             .output()
-            .await;
+            .await
+            .map_err(|e| format!("执行终止命令失败: {}", e))?;
+
+        if !output.status.success() {
+            return Err(format!(
+                "终止进程失败: {}",
+                String::from_utf8_lossy(&output.stderr)
+            ));
+        }
     }
     Ok(())
 }
