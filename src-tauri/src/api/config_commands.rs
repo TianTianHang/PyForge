@@ -224,7 +224,7 @@ fn guess_symlink_type(target: &std::path::Path) -> bool {
     if let Some(ext) = target.extension() {
         let file_exts = ["exe", "dll", "txt", "py", "json", "yaml", "toml"];
         let ext_str = ext.to_string_lossy();
-        if file_exts.contains(&*ext_str) {
+        if file_exts.contains(&ext_str.as_ref()) {
             return false; // 文件
         }
     }
@@ -264,8 +264,8 @@ mod tests {
     }
 
     
-    #[test]
-    fn test_migrate_file_symlink() {
+    #[tokio::test]
+    async fn test_migrate_file_symlink() {
         let old_dir = TempDir::new().unwrap();
         let new_dir = TempDir::new().unwrap();
 
@@ -280,7 +280,7 @@ mod tests {
         migrate_data(
             old_dir.path().to_str().unwrap().to_string(),
             new_dir.path().to_str().unwrap().to_string(),
-        ).unwrap();
+        ).await.unwrap();
 
         // 验证符号链接正确迁移
         let new_symlink = new_dir.path().join("link.txt");
@@ -288,8 +288,8 @@ mod tests {
         assert_eq!(fs::read_to_string(&new_symlink).unwrap(), "content");
     }
 
-    #[test]
-    fn test_migrate_mixed_content() {
+    #[tokio::test]
+    async fn test_migrate_mixed_content() {
         let old_dir = TempDir::new().unwrap();
         let new_dir = TempDir::new().unwrap();
 
@@ -305,7 +305,7 @@ mod tests {
         migrate_data(
             old_dir.path().to_str().unwrap().to_string(),
             new_dir.path().to_str().unwrap().to_string(),
-        ).unwrap();
+        ).await.unwrap();
 
         // 验证所有内容都正确迁移
         assert!(new_dir.path().join("file.txt").exists());
@@ -333,8 +333,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_migrate_broken_symlink() {
+    #[tokio::test]
+    async fn test_migrate_broken_symlink() {
         let old_dir = TempDir::new().unwrap();
         let new_dir = TempDir::new().unwrap();
 
@@ -356,7 +356,7 @@ mod tests {
         );
 
         // 损坏链接应该被复制，但可能是警告而不是错误
-        assert!(result.is_ok());
+        assert!(result.await.is_ok());
         assert!(new_dir.path().join("broken").is_symlink());
     }
 
@@ -425,8 +425,8 @@ mod tests {
         assert!(is_broken_symlink(&symlink_path));
     }
 
-    #[test]
-    fn test_migrate_relative_symlink_with_parent() {
+    #[tokio::test]
+    async fn test_migrate_relative_symlink_with_parent() {
         let old_dir = TempDir::new().unwrap();
         let new_dir = TempDir::new().unwrap();
 
@@ -450,7 +450,7 @@ mod tests {
         migrate_data(
             old_dir.path().to_str().unwrap().to_string(),
             new_dir.path().to_str().unwrap().to_string(),
-        ).unwrap();
+        ).await.unwrap();
 
         // 验证相对符号链接仍然有效
         let new_symlink = new_dir.path().join("link");
