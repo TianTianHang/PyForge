@@ -1,5 +1,6 @@
 use rand::Rng;
 use std::path::PathBuf;
+#[deprecated(since = "0.1.0", note = "Only used by deprecated generate_token(). Will be removed when that function is removed.")]
 use uuid::Uuid;
 
 /// 将 PathBuf 转换为 &str，用于命令参数传递
@@ -22,6 +23,7 @@ pub fn is_port_available(port: u16) -> bool {
     std::net::TcpListener::bind(("127.0.0.1", port)).is_ok()
 }
 
+#[deprecated(since = "0.1.0", note = "Token authentication has been disabled and this function is no longer used. Will be removed in a future version.")]
 pub fn generate_token() -> String {
     Uuid::new_v4().to_string().replace("-", "")
 }

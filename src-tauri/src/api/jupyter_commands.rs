@@ -31,7 +31,8 @@ pub async fn start_jupyter(
 
     let config = JupyterServerConfig {
         port: find_available_port()?,
-        token: String::new(),
+        #[allow(deprecated)]
+        token: String::new(), // Kept for backward compatibility, will be removed
         notebook_dir: notebook_dir.clone(),
         executable_path: python_path.to_string_lossy().to_string(),
         kernel_dirs,

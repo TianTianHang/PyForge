@@ -51,7 +51,8 @@ pub async fn start_jupyter_server(config: JupyterServerConfig) -> Result<Jupyter
     let url = format!("http://127.0.0.1:{}/lab", config.port);
     let info = JupyterInfo {
         port: config.port,
-        token: String::new(),
+        #[allow(deprecated)]
+        token: String::new(), // Kept for backward compatibility, will be removed
         url: url.clone(),
         notebook_dir,
     };

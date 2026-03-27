@@ -49,7 +49,8 @@ pnpm preview
 ├── docs/                  # Architecture documentation (Chinese)
 │   ├── architecture.md    # System architecture overview
 │   ├── development-roadmap.md
-│   └── file-system-solution.md
+│   ├── file-system-solution.md
+│   └── rust-cross-platform-file-operations.md  # Cross-platform file operations guide
 └── vite.config.ts         # Vite configuration (port 1420)
 ```
 
@@ -107,3 +108,11 @@ fn greet(name: &str) -> String {
 - Tauri watches for changes in `src/` but ignores `src-tauri/`
 - The `lib.rs` crate name is `pyforge_lib` (not `pyforge`) to avoid Windows naming conflicts
 - Mobile entry point is configured in `lib.rs` via `#[cfg_attr(mobile, tauri::mobile_entry_point)]`
+
+## Cross-Platform Development
+
+When working with file system operations in Rust:
+- Refer to [docs/rust-cross-platform-file-operations.md](docs/rust-cross-platform-file-operations.md) for detailed guidance
+- Pay special attention to Windows symlink permissions and long path handling
+- Use conditional compilation for platform-specific code paths
+- Test on all target platforms (Windows, macOS, Linux)

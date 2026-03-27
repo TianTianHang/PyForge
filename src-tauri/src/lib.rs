@@ -7,7 +7,7 @@ pub mod templates;
 
 use domain::environment::{check_env_exists, list_environments};
 use domain::project::list_projects;
-use infrastructure::{get_env_dir, init_config, init_paths, migrate_from_mvp, migrate_projects, write_uv_config};
+use infrastructure::{get_env_dir, init_config, init_paths, write_uv_config};
 use state::AppStateWrapper;
 use tauri::Manager;
 
@@ -52,9 +52,6 @@ pub fn run() {
             let config = init_config()?;
             init_paths(config.data_dir())?;
             write_uv_config(&config)?;
-
-            migrate_from_mvp()?;
-            migrate_projects()?;
 
             let env_dir = get_env_dir("default");
             let state = app.state::<AppStateWrapper>();

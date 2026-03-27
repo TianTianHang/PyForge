@@ -47,6 +47,7 @@ export interface EnvStatus {
 
 export interface JupyterInfo {
   port: number;
+  /** @deprecated Token authentication has been disabled. This field is always empty and will be removed in a future version. */
   token: string;
   url: string;
   notebook_dir: string;

@@ -44,14 +44,14 @@ The system SHALL start Jupyter with kernel directories scoped to only the kernel
 
 #### Scenario: Start Jupyter with project-specific kernels
 - **WHEN** user selects project "data-analysis" with kernel "python3" bound
-- **THEN` system starts Jupyter with `--KernelSpecManager.kernel_dirs` set to `[projects/data-analysis/kernels/]`
-- **AND` Jupyter SHALL only display kernels bound to this project
-- **AND` SHALL NOT show kernels from other projects or global store
+- **THEN** system starts Jupyter with `--KernelSpecManager.kernel_dirs` set to `[projects/data-analysis/kernels/]`
+- **AND** Jupyter SHALL only display kernels bound to this project
+- **AND** SHALL NOT show kernels from other projects or global store
 
 #### Scenario: Kernel isolation between projects
 - **WHEN** project A has kernel "python3" and project B has kernel "r"
-- **THEN` Jupyter for project A SHALL ONLY show pyforge-python3
-- **AND` Jupyter for project B SHALL ONLY show pyforge-r
+- **THEN** Jupyter for project A SHALL ONLY show pyforge-python3
+- **AND** Jupyter for project B SHALL ONLY show pyforge-r
 
 ## MODIFIED Requirements
 
@@ -63,15 +63,15 @@ The kernel binding SHALL create file copies instead of symbolic links, ensuring 
 
 #### Scenario: Binding kernel without special permissions
 - **WHEN** binding a kernel to a project on Windows
-- **THEN` operation SHALL succeed without requiring administrator privileges
-- **AND` SHALL work on Windows without Developer Mode
-- **AND` SHALL work on macOS and Linux without any special requirements
+- **THEN** operation SHALL succeed without requiring administrator privileges
+- **AND** SHALL work on Windows without Developer Mode
+- **AND** SHALL work on macOS and Linux without any special requirements
 
 #### Scenario: Migrating from symbolic links to file copies
 - **WHEN** an existing project uses symbolic links for kernel binding
-- **THEN` binding SHALL automatically convert to file copies
-- **AND` SHALL preserve all kernel configuration
-- **AND` SHALL maintain Jupyter compatibility
+- **THEN** binding SHALL automatically convert to file copies
+- **AND** SHALL preserve all kernel configuration
+- **AND** SHALL maintain Jupyter compatibility
 
 ## REMOVED Requirements
 
