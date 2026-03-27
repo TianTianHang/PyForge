@@ -305,15 +305,33 @@ fn recreate_symlink(
             src.parent().unwrap_or(src).join(&target)
         };
 
-        if resolved_target.starts_with(old_root) {
+        let link_target = if resolved_target.starts_with(old_root) {
             let relative_path = pathdiff::diff_paths(&resolved_target, old_root)
                 .unwrap_or_default();
-            let new_target = new_root.join(relative_path);
-            std::os::unix::fs::symlink(&new_target, dst)
-                .map_err(|e| format!("创建符号链接失败: {}", e))?;
+            new_root.join(relative_path)
         } else {
-            std::os::unix::fs::symlink(&target, dst)
+            target
+        };
+
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink(&link_target, dst)
                 .map_err(|e| format!("创建符号链接失败: {}", e))?;
+        }
+
+        #[cfg(windows)]
+        {
+            let is_dir = fs::metadata(src)
+                .map(|m| m.is_dir())
+                .unwrap_or(false);
+
+            if is_dir {
+                std::os::windows::fs::symlink_dir(&link_target, dst)
+                    .map_err(|e| format!("创建目录符号链接失败: {}", e))?;
+            } else {
+                std::os::windows::fs::symlink_file(&link_target, dst)
+                    .map_err(|e| format!("创建文件符号链接失败: {}", e))?;
+            }
         }
     }
     Ok(())

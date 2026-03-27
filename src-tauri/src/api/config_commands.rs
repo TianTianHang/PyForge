@@ -223,7 +223,8 @@ fn guess_symlink_type(target: &std::path::Path) -> bool {
     // 策略2: 根据扩展名判断
     if let Some(ext) = target.extension() {
         let file_exts = ["exe", "dll", "txt", "py", "json", "yaml", "toml"];
-        if file_exts.contains(&ext.to_string_lossy().as_str()) {
+        let ext_str = ext.to_string_lossy();
+        if file_exts.contains(&*ext_str) {
             return false; // 文件
         }
     }
