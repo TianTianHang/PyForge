@@ -93,7 +93,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v${{ steps.get_version.outputs.version }}
-          releaseName: 'PyForge ${{ steps.get_version.outputs.is_tag == 'true' && format('v{0}', steps.get_version.outputs.version) || format('({0})', steps.get_version.outputs.version) }}'
+          releaseName: "PyForge ${{ steps.get_version.outputs.is_tag == 'true' && format('v{0}', steps.get_version.outputs.version) || format('({0})', steps.get_version.outputs.version) }}"
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: ${{ steps.get_version.outputs.is_tag == 'true' }}
           prerelease: false
